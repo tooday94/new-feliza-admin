@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0d0d0d;
+  --color-secondary: #5b5b5b;
+  --color-accent: #858585;
+}
+
+.custom-tabs .ant-tabs-tab {
+  @apply !bg-accent text-white rounded-t-md;
+}
+
+.custom-tabs .ant-tabs-tab-active {
+  @apply !bg-primary;
+}
+.custom-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  @apply !text-white;
+}
