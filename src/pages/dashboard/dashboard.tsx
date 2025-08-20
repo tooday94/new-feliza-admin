@@ -1,8 +1,18 @@
-import { Card, Col, Row, Spin, Empty, Typography, Statistic } from "antd";
+import {
+  Card,
+  Col,
+  Row,
+  Spin,
+  Empty,
+  Typography,
+  Statistic,
+  Button,
+} from "antd";
 import { Column, Pie } from "@ant-design/plots";
 import { useGetList } from "../../services/query/useGetList";
 import { endpoints } from "../../configs/endpoints";
 import type { AdminType } from "../../types/admin-type";
+import { GoDownload } from "react-icons/go";
 
 const { Title, Text } = Typography;
 
@@ -92,6 +102,18 @@ const Dashboard = () => {
             So‘nggi 30 kunlik buyurtmalar statistikasi
           </Text>
         </div>
+        <Button
+          type="primary"
+          icon={<GoDownload size={20} />}
+          className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-md shadow border-none"
+          onClick={() => {
+            window.open(
+              "https://felizabackend.uz/api/export/monthlyStats?year=2025&month=8"
+            );
+          }}
+        >
+          Yuklab olish
+        </Button>
       </div>
 
       {/* Statistikalar */}

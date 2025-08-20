@@ -400,10 +400,11 @@ const AddPostFilial = () => {
         dataSource={data}
         rowKey={(record) => record.id.toString()}
         loading={isLoading}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: false,
-        }}
+        // pagination={{
+        //   pageSize: 10,
+        //   showSizeChanger: false,
+        // }}
+        pagination={false}
         scroll={{ x: "max-content" }}
         bordered={true}
         title={() => (

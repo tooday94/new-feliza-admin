@@ -257,11 +257,12 @@ const AddSubRegion = () => {
         columns={columns}
         dataSource={data || []}
         loading={isLoading}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: false,
-          pageSizeOptions: ["10", "20", "50", "100"],
-        }}
+        // pagination={{
+        //   pageSize: 10,
+        //   showSizeChanger: false,
+        //   pageSizeOptions: ["10", "20", "50", "100"],
+        // }}
+        pagination={false}
         scroll={{ x: 800 }}
         bordered
         title={() => (
