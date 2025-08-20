@@ -172,6 +172,10 @@ const AddRegion = () => {
 
   return (
     <div className="p-1">
+      <h1 className="text-4xl font-extrabold pb-5 text-indigo-600 drop-shadow-md tracking-wide">
+        Viloyatlar ro'yxati
+      </h1>
+
       {/* Viloyat qo'shish */}
       <Modal
         title={isEditing ? "Hududni tahrirlash" : "Hudud qo'shish"}
@@ -249,15 +253,24 @@ const AddRegion = () => {
         dataSource={data || []}
         columns={columns}
         rowKey="id"
-        pagination={{ pageSize: 10 }}
+        // pagination={{ pageSize: 10 }}
+        pagination={false}
         bordered
         loading={isLoading}
       />
       {/* Tuman qo'shish */}
       <div className="pt-10">
+        <h1 className="text-4xl font-extrabold pb-5 text-indigo-600 drop-shadow-md tracking-wide">
+          Tumanlar ro'yxati
+        </h1>
         <AddSubRegion />
       </div>
-      <div className="pt-10">
+      <div className="pt-5">
+        <h1 className="text-4xl font-extrabold pb-5 text-indigo-600 drop-shadow-md tracking-wide">
+          <h1 className="text-4xl font-extrabold pb-5 text-indigo-600 drop-shadow-md tracking-wide">
+            Pochta filiallari ro'yxati
+          </h1>
+        </h1>
         <AddPostFilial />
       </div>
     </div>

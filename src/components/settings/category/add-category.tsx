@@ -297,7 +297,8 @@ function AddCategory() {
         rowKey="id"
         bordered
         scroll={{ x: true }}
-        pagination={{ pageSize: 15, showSizeChanger: false }}
+        // pagination={{ pageSize: 15, showSizeChanger: false }} pagination false
+        pagination={false}
         title={() => (
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold">Kategoriya qo'shish</h2>

@@ -198,7 +198,6 @@ function AddColor() {
   };
   return (
     <Card
-      loading={isLoading}
       className="shadow-md rounded-xl p-4 bg-white"
       title={
         <div className="text-lg font-semibold text-gray-800 flex justify-between items-center">
@@ -258,10 +257,11 @@ function AddColor() {
         loading={isLoading}
         rowKey="id"
         columns={columns}
-        pagination={{
-          defaultPageSize: 10,
-          showSizeChanger: false,
-        }}
+        // pagination={{
+        //   defaultPageSize: 10,
+        //   showSizeChanger: false,
+        // }}
+        pagination={false}
         footer={() => (
           <div className="text-sm text-gray-500">
             Umumiy ranglar soni: {data?.length || 0}
