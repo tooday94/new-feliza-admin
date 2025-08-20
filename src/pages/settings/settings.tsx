@@ -14,6 +14,7 @@ const Settings = () => {
     { id: 3, label: "Brend" },
     { id: 4, label: "Adress" },
     { id: 5, label: "SMS" },
+    // { id: 6, label: "Xabar" }, // Xabar qo‘shish bo‘limi qo‘shilishi mumkin
   ];
 
   // useEffect sahifa yuklanganda localStorage dan o‘qib olish
