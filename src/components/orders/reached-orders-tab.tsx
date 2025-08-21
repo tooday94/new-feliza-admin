@@ -18,6 +18,7 @@ import { dateFormat } from "../../utils/formatDate";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUpdate } from "../../services/mutation/useUpdate";
 import { endpoints } from "../../configs/endpoints";
+import { toast } from "react-toastify";
 type ReachedType = {
   content: newOrders[];
   totalElements: number;
@@ -65,6 +66,7 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
     }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
+          size="large"
           ref={searchInput}
           placeholder={`Qidirish`}
           value={selectedKeys[0]}
@@ -87,14 +89,14 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
               setSearchedColumn(dataIndex);
             }}
             icon={<SearchOutlined />}
-            size="small"
+            size="large"
             style={{ width: 90 }}
           >
             Qidirish
           </Button>
           <Button
             type="default"
-            size="small"
+            size="large"
             onClick={() => {
               confirm({ closeDropdown: false });
               setSearchText(selectedKeys[0] as string);
@@ -103,23 +105,25 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
           >
             Filterlash
           </Button>
-          <Button
+          {/* <Button
             danger
             icon={<ClearOutlined />}
             onClick={() => {
               clearFilters?.();
               setSearchText("");
             }}
-            size="small"
+            size="large"
           >
             Tozalash
-          </Button>
+          </Button> */}
 
           <Button
             disabled={searchText ? false : true}
             icon={<ReloadOutlined />}
             type="link"
-            size="small"
+            size="large"
+            children="Tozalash"
+            danger
             onClick={() => {
               setSearchText("");
               setSearchedColumn("");
@@ -162,6 +166,11 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
   });
 
   const columns: ColumnsType<newOrders> = [
+    {
+      width: "0",
+      title: "№",
+      render: (_, __, index) => (currentPage - 1) * limit + index + 1,
+    },
     {
       title: "Buyurtma raqami",
       dataIndex: "orderNumber",
@@ -209,6 +218,7 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
       dataIndex: ["orderStatusType"],
     },
     {
+      fixed: "right",
       align: "center",
       width: "0",
       title: <SettingFilled />,
@@ -245,7 +255,7 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
       <Table<newOrders>
         caption={
           selectedRowKeys.length > 0
-            ? "Tanlangan buyurtmalar" + selectedRowKeys.length
+            ? "Tanlangan buyurtmalar: " + selectedRowKeys.length
             : ""
         }
         size="large"
@@ -261,8 +271,8 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
         dataSource={data?.content}
         rowKey="id"
         title={() => (
-          <Flex align="center" justify="space-between" gap={24}>
-            <div className="">
+          <Flex align="center" justify="space-between" gap={24} wrap>
+            <div className="md:text-lg font-semibold">
               <h1>
                 Jami buyurtmalar: <b>{data?.totalElements}</b>
               </h1>
@@ -299,7 +309,15 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
                           return selectedRowKeys.map((id) =>
                             orderToCancel(
                               { id, data: {} },
-                              { onError: () => console.log(id) }
+                              {
+                                onError: () =>
+                                  toast.error("Buyurtma(lar) bekor qilinmadi"),
+                                onSuccess: () => {
+                                  toast.success("Buyurtma(lar) bekor qilindi");
+                                  refetch();
+                                  setSelectedRowKeys([]);
+                                },
+                              }
                             )
                           );
                         }}
@@ -321,7 +339,18 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
                         cancelText="Yo'q"
                         onConfirm={() =>
                           selectedRowKeys.map((id) =>
-                            orderToPack({ id, data: {} })
+                            orderToPack(
+                              { id, data: {} },
+                              {
+                                onError: () =>
+                                  toast.error("Buyurtma(lar) Tayyorlanmadi"),
+                                onSuccess: () => {
+                                  toast.success("Buyurtma(lar) Tayyorlandi");
+                                  refetch();
+                                  setSelectedRowKeys([]);
+                                },
+                              }
+                            )
                           )
                         }
                         onOpenChange={() => console.log("open change")}
@@ -339,6 +368,7 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
                 }
               >
                 <Button
+                  size="large"
                   type="primary"
                   disabled={selectedRowKeys.length == 0}
                   className="mb-2"
@@ -347,6 +377,7 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
                 </Button>
               </Popover>
               <Button
+                size="large"
                 type="primary"
                 onClick={() => refetch()}
                 icon={<ReloadOutlined />}
