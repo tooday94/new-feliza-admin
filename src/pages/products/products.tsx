@@ -330,7 +330,7 @@ const Products = () => {
                   mxikNumber: record.mxiknumber,
                   importPrice: record.importPrice,
                   sellPrice: record.sellPrice,
-
+                  active: record.active,
                   brandId: record.brand?.id,
                   categoryId: record.category?.map((c) => c.id),
                   colorId: record.color?.id,
@@ -486,7 +486,7 @@ const Products = () => {
                   mxikNumber: record.mxiknumber,
                   importPrice: record.importPrice,
                   sellPrice: record.sellPrice,
-
+                  active: record.active,
                   brandId: record.brand?.id,
                   categoryId: record.category?.map((c) => c.id),
                   colorId: record.color?.id,
