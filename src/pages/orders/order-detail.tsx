@@ -12,11 +12,13 @@ import {
 import { BiUser } from "react-icons/bi";
 import OrderShowSteps from "../../components/orders/order-show-steps";
 import { useUpdate } from "../../services/mutation/useUpdate";
+import { toast } from "react-toastify";
+import { dateFormat } from "../../utils/formatDate";
 const OrderDetail: React.FC = () => {
   const [trackNumber, setTrackNumber] = useState("");
   const { id } = useParams();
 
-  const { data, isLoading } = useGetById<newOrders>({
+  const { data, isLoading, refetch } = useGetById<newOrders>({
     endpoint: endpoints.order.getById,
     id: id || "",
   });
@@ -24,32 +26,35 @@ const OrderDetail: React.FC = () => {
 
   const { mutate: orderToSend, isPending: orderToSendPending } = useUpdate({
     endpoint: endpoints.order.putToSend,
-    queryKey: endpoints.order.getById,
+    queryKey: endpoints.order.getShipped,
   });
   const { mutate: orderToPack, isPending: orderToPackPending } = useUpdate({
     endpoint: endpoints.order.putToPack,
-    queryKey: endpoints.order.getById,
+    queryKey: endpoints.order.getPackaged,
   });
   const { mutate: orderToCancel, isPending: orderToCancelPending } = useUpdate({
     endpoint: endpoints.order.putToRejected,
-    queryKey: endpoints.order.getById,
+    queryKey: endpoints.order.getCanceled,
   });
 
   const { mutate: orderToDelivered } = useUpdate({
     endpoint: endpoints.order.putToReached,
-    queryKey: endpoints.order.getById,
+    queryKey: endpoints.order.getAllDelivered,
   });
 
   return (
     <Flex vertical gap={48} className="w-full">
-      <Flex gap={24} justify="space-between" className="w-full">
-        <Flex vertical gap={24} className="h-fit max-w-2/3 w-full">
-          <Flex gap={12} className="rounded-md bg-white !p-3 w-full ">
+      <Flex
+        gap={24}
+        justify="space-between"
+        className="w-full flex-wrap md:flex-nowrap"
+      >
+        <Flex vertical gap={24} className="h-fit md:max-w-2/3 w-full">
+          <Flex gap={12} className="rounded-md bg-white !p-3 w-full flex-wrap">
             {data?.customer?.image?.url ? (
-              <img
-                className="rounded-md w-48"
+              <Image
+                className="rounded-md !w-48 !h-full"
                 src={data?.customer?.image?.url}
-                alt=""
               />
             ) : (
               <div className="rounded-md w-48 flex justify-center items-center">
@@ -97,15 +102,26 @@ const OrderDetail: React.FC = () => {
                   <span className="text-red-500">Yo'q</span>
                 )}
               </h1>
+              <h1>
+                <b>Buyurtma qilingan vaqt: </b>
+
+                {dateFormat(data?.createdAt || "")}
+              </h1>
             </Flex>
           </Flex>
-          <OrderShowSteps status={data?.orderStatusType as OrderStatus} />
+          <OrderShowSteps
+            status={
+              data?.orderStatusType && data.paid
+                ? (data.orderStatusType as OrderStatus)
+                : ("PAIDFALSE" as OrderStatus)
+            }
+          />
         </Flex>
         <Flex
           align="end"
           vertical
           justify="space-between"
-          className="w-full max-w-1/3"
+          className="w-full md:max-w-1/3"
         >
           <Flex gap={48} justify="start" vertical className="w-full">
             <Popconfirm
@@ -117,7 +133,13 @@ const OrderDetail: React.FC = () => {
                 console.log("Bekor qilish"),
                 orderToCancel(
                   { id: data?.orderId, data: {} },
-                  { onError: () => console.log(data?.orderId) }
+                  {
+                    onError: () => toast.error("Buyurtma bekor qilinmadi"),
+                    onSuccess: () => {
+                      toast.success("Buyurtma bekor qilindi");
+                      refetch();
+                    },
+                  }
                 )
               )}
               onOpenChange={() => console.log("open change")}
@@ -140,10 +162,18 @@ const OrderDetail: React.FC = () => {
               description="Buyurtma tayyorlandimi?"
               okText="Tasdiqlash"
               cancelText="Yo'q"
-              onConfirm={() => (
-                console.log("Tayyorlandi"),
-                orderToPack({ id: data?.orderId, data: {} })
-              )}
+              onConfirm={() =>
+                orderToPack(
+                  { id: data?.orderId, data: {} },
+                  {
+                    onError: () => toast.error("Buyurtma Tayyorlanmadi"),
+                    onSuccess: () => {
+                      toast.success("Buyurtma Tayyorlandi");
+                      refetch();
+                    },
+                  }
+                )
+              }
               onOpenChange={() => console.log("open change")}
             >
               <Button
@@ -161,7 +191,16 @@ const OrderDetail: React.FC = () => {
               cancelText="Yo'q"
               onConfirm={() => (
                 console.log("Tayyorlandi"),
-                orderToDelivered({ id: data?.orderId, data: {} })
+                orderToDelivered(
+                  { id: data?.orderId, data: {} },
+                  {
+                    onError: () => toast.error("Buyurtma Yetkazilmadi"),
+                    onSuccess: () => {
+                      toast.success("Buyurtma Yetkazildi");
+                      refetch();
+                    },
+                  }
+                )
               )}
               onOpenChange={() => console.log("open change")}
             >
@@ -197,10 +236,20 @@ const OrderDetail: React.FC = () => {
                 cancelText="Yo'q"
                 onConfirm={() => (
                   console.log("Jo'natildi", data?.orderId),
-                  orderToSend({
-                    id: data?.orderId,
-                    data: { postTrackingNumber: trackNumber },
-                  })
+                  orderToSend(
+                    {
+                      id: data?.orderId,
+                      data: { postTrackingNumber: trackNumber },
+                    },
+                    {
+                      onError: () => toast.error("Buyurtma Jo'natilmadi"),
+                      onSuccess: () => {
+                        toast.success("Buyurtma Jo'natildi");
+                        refetch();
+                        setTrackNumber("");
+                      },
+                    }
+                  )
                 )}
                 onOpenChange={() => console.log("open change")}
               >
@@ -219,41 +268,74 @@ const OrderDetail: React.FC = () => {
 
       <Table
         bordered
+        size="large"
+        scroll={{ x: "max-content" }}
         loading={isLoading}
         dataSource={data?.orderDetailDtos}
         columns={[
           {
             width: "0",
             title: "Rasm",
-            dataIndex: ["productImages", ""],
+            dataIndex: "productImages",
             render: (_, record) => (
-              <Image width={56} src={record.productImages[0].url} />
+              <Image.PreviewGroup>
+                {record.productImages.length > 0 ? (
+                  <>
+                    {/* Faqat birinchi rasmni ko‘rsatamiz */}
+                    <Image
+                      width={56}
+                      src={record.productImages[0].url}
+                      className="rounded-md"
+                    />
+
+                    {/* Qolgan rasmlar preview uchun bor, lekin jadvalda ko‘rinmaydi */}
+                    {record.productImages.slice(1).map((image) => (
+                      <Image
+                        key={image.id}
+                        width={0} // ekranda ko‘rinmasligi uchun
+                        src={image.url}
+                        style={{ display: "none" }} // faqat previewda ochiladi
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <Image width={56} src="/images/no-image.png" />
+                )}
+              </Image.PreviewGroup>
             ),
           },
           {
-            width: "0",
             title: "Mahsulot nomi",
             dataIndex: "productName",
           },
           {
-            width: "0",
+            title: "BarCode",
+            dataIndex: ["productSizeVariant", "barCode"],
+          },
+          {
             title: "Mahsulot Ref",
             dataIndex: ["referenceNumber"],
           },
           {
-            width: "0",
             title: "Sotish narxi",
             dataIndex: ["sellPrice"],
           },
           {
+            title: "Chegirmadagi narxi",
+            dataIndex: ["productCost"],
+          },
+          {
             width: "0",
+            align: "center",
             title: "Mahsulot soni",
             dataIndex: "quantity",
           },
           {
-            width: "0",
             title: "Mahsulot O'lchami",
             dataIndex: ["productSizeVariant", "size"],
+          },
+          {
+            title: "",
           },
         ]}
       />

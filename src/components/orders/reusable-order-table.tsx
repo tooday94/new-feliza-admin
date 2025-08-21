@@ -25,7 +25,10 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") || "all";
-
+  const initialPage = Number(searchParams.get("page")) || 1;
+  const initialLimit = Number(searchParams.get("limit")) || 10;
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [limit, setLimit] = useState(initialLimit);
   const { data, isLoading, refetch } = useGetList<newOrders[]>({
     endpoint,
   });
@@ -52,6 +55,7 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
     }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <Input
+          size="large"
           ref={searchInput}
           placeholder={`Qidirish`}
           value={selectedKeys[0]}
@@ -74,14 +78,14 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
               setSearchedColumn(dataIndex);
             }}
             icon={<SearchOutlined />}
-            size="small"
+            size="large"
             style={{ width: 90 }}
           >
             Qidirish
           </Button>
           <Button
             type="default"
-            size="small"
+            size="large"
             onClick={() => {
               confirm({ closeDropdown: false });
               setSearchText(selectedKeys[0] as string);
@@ -90,23 +94,25 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
           >
             Filterlash
           </Button>
-          <Button
+          {/* <Button
             danger
             icon={<ClearOutlined />}
             onClick={() => {
               clearFilters?.();
               setSearchText("");
             }}
-            size="small"
+            size="large"
           >
             Tozalash
-          </Button>
+          </Button> */}
 
           <Button
             disabled={searchText ? false : true}
             icon={<ReloadOutlined />}
             type="link"
-            size="small"
+            size="large"
+            children="Tozalash"
+            danger
             onClick={() => {
               setSearchText("");
               setSearchedColumn("");
@@ -149,6 +155,11 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
   });
 
   const columns: ColumnsType<newOrders> = [
+    {
+      width: "0",
+      title: "№",
+      render: (_, __, index) => (currentPage - 1) * limit + index + 1,
+    },
     {
       title: "Buyurtma raqami",
       dataIndex: "orderNumber",
@@ -199,6 +210,7 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
       dataIndex: ["orderStatusType"],
     },
     {
+      fixed: "right",
       align: "center",
       width: "0",
       title: <SettingFilled />,
@@ -223,16 +235,16 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
 
   const { mutate: orderToPack, isPending: orderToPackPending } = useUpdate({
     endpoint: endpoints.order.putToPack,
-    queryKey: endpoints.order.getById,
+    queryKey: endpoints.order.getPackaged,
   });
   const { mutate: orderToCancel, isPending: orderToCancelPending } = useUpdate({
     endpoint: endpoints.order.putToRejected,
-    queryKey: endpoints.order.getById,
+    queryKey: endpoints.order.getCanceled,
   });
 
   const { mutate: orderToDelivered } = useUpdate({
     endpoint: endpoints.order.putToReached,
-    queryKey: endpoints.order.getById,
+    queryKey: endpoints.order.getAllDelivered,
   });
 
   const isCanceled = endpoint == endpoints.order.getCanceled;
@@ -252,7 +264,7 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
       <Table<newOrders>
         caption={
           selectedRowKeys.length > 0
-            ? "Tanlangan buyurtmalar" + selectedRowKeys.length
+            ? "Tanlangan buyurtmalar: " + selectedRowKeys.length
             : ""
         }
         size="large"
@@ -268,8 +280,8 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
         dataSource={isNotPaid ? notPaidOrders : data}
         rowKey="id"
         title={() => (
-          <Flex align="center" justify="space-between" gap={24}>
-            <div className="">
+          <Flex align="center" justify="space-between" gap={24} wrap>
+            <div className="md:text-lg font-semibold">
               <h1>
                 Jami buyurtmalar: <b>{data?.length}</b>
               </h1>
@@ -280,8 +292,9 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
 
             <div className="flex gap-2">
               <Popover
+                // open={selectedRowKeys.length > 0}
                 trigger={["click"]}
-                placement="leftBottom"
+                // placement="leftBottom"
                 title="Tanlangan buyurtmalarni o'zgartirish"
                 content={
                   <Flex vertical gap={24}>
@@ -311,6 +324,8 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
                                   toast.error("Buyurtma(lar) bekor qilinmadi"),
                                 onSuccess: () => {
                                   toast.success("Buyurtma(lar) bekor qilindi");
+                                  refetch();
+                                  setSelectedRowKeys([]);
                                 },
                               }
                             )
@@ -344,6 +359,8 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
                                   toast.error("Buyurtma(lar) Tayyorlanmadi"),
                                 onSuccess: () => {
                                   toast.success("Buyurtma(lar) Tayyorlandi");
+                                  refetch();
+                                  setSelectedRowKeys([]);
                                 },
                               }
                             )
@@ -362,11 +379,10 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
 
                       <Popconfirm
                         title="Tasdiqlash"
-                        description="Buyurtma tayyorlandimi?"
+                        description="Buyurtma yetkazildimi?"
                         okText="Tasdiqlash"
                         cancelText="Yo'q"
-                        onConfirm={() => (
-                          console.log("Tayyorlandi"),
+                        onConfirm={() =>
                           selectedRowKeys.map((id) =>
                             orderToDelivered(
                               { id, data: {} },
@@ -375,11 +391,13 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
                                   toast.error("Buyurtma(lar) Yetkazilmadi"),
                                 onSuccess: () => {
                                   toast.success("Buyurtma(lar) Yetkazildi");
+                                  refetch();
+                                  setSelectedRowKeys([]);
                                 },
                               }
                             )
                           )
-                        )}
+                        }
                         onOpenChange={() => console.log("open change")}
                       >
                         <Button
@@ -396,6 +414,7 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
                 }
               >
                 <Button
+                  size="large"
                   type="primary"
                   disabled={selectedRowKeys.length == 0}
                   className="mb-2"
@@ -404,6 +423,7 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
                 </Button>
               </Popover>
               <Button
+                size="large"
                 type="primary"
                 onClick={() => refetch()}
                 icon={<ReloadOutlined />}
@@ -414,9 +434,12 @@ export const ReusableOrderTab = ({ endpoint }: { endpoint: string }) => {
         columns={columns}
         pagination={{
           position: ["bottomCenter"],
+          current: currentPage,
           showSizeChanger: true,
           showQuickJumper: true,
           onChange: (page, size) => {
+            setCurrentPage(page);
+            setLimit(size);
             setSearchParams({
               tab: initialTab,
               page: String(page),

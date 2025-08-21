@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useGetList } from "../../services/query/useGetList";
 import { endpoints } from "../../configs/endpoints";
 import type { Product } from "../../types/products-type";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useCreate } from "../../services/mutation/useCreate";
 import {
   Button,
@@ -21,6 +21,7 @@ import {
 } from "antd";
 import {
   DeleteFilled,
+  DownloadOutlined,
   EditFilled,
   PlusOutlined,
   SettingFilled,
@@ -124,33 +125,43 @@ const Products = () => {
 
   return (
     <div>
-      <Flex gap={12} className="tab">
-        <Button
-          size="large"
-          type={tab == "all" ? "primary" : "default"}
-          onClick={() => (
-            setTab("all"),
-            setSearchParams({
-              page: String(initialPage),
-              limit: String(initialLimit),
-              tab: "all",
-            })
-          )}
-          children={`Barchasi (${AllProducts?.totalElements || 0})`}
-        />
-        <Button
-          size="large"
-          type={tab == "active" ? "primary" : "default"}
-          onClick={() => (
-            setTab("active"),
-            setSearchParams({
-              page: String(initialPage),
-              limit: String(initialLimit),
-              tab: "active",
-            })
-          )}
-          children={`Active (${activeProducts?.totalElements || 0})`}
-        />
+      <Flex justify="space-between" align="center" wrap gap={24}>
+        <Flex gap={12} className="">
+          <Button
+            size="large"
+            type={tab == "all" ? "primary" : "default"}
+            onClick={() => (
+              setTab("all"),
+              setSearchParams({
+                page: String(initialPage),
+                limit: String(initialLimit),
+                tab: "all",
+              })
+            )}
+            children={`Barchasi (${AllProducts?.totalElements || 0})`}
+          />
+          <Button
+            size="large"
+            type={tab == "active" ? "primary" : "default"}
+            onClick={() => (
+              setTab("active"),
+              setSearchParams({
+                page: String(initialPage),
+                limit: String(initialLimit),
+                tab: "active",
+              })
+            )}
+            children={`Active (${activeProducts?.totalElements || 0})`}
+          />
+        </Flex>
+        <Link to={"https://felizabackend.uz/api/export/exportProducts"}>
+          <Button
+            size="large"
+            type="primary"
+            icon={<DownloadOutlined />}
+            children="Mahsulotlarni Yuklab Olish"
+          />
+        </Link>
       </Flex>
 
       <Table
