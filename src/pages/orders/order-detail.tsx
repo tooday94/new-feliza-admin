@@ -281,20 +281,18 @@ const OrderDetail: React.FC = () => {
               <Image.PreviewGroup>
                 {record.productImages.length > 0 ? (
                   <>
-                    {/* Faqat birinchi rasmni ko‘rsatamiz */}
                     <Image
-                      width={56}
+                      width={120}
                       src={record.productImages[0].url}
                       className="rounded-md"
                     />
 
-                    {/* Qolgan rasmlar preview uchun bor, lekin jadvalda ko‘rinmaydi */}
                     {record.productImages.slice(1).map((image) => (
                       <Image
                         key={image.id}
-                        width={0} // ekranda ko‘rinmasligi uchun
+                        width={0}
                         src={image.url}
-                        style={{ display: "none" }} // faqat previewda ochiladi
+                        style={{ display: "none" }}
                       />
                     ))}
                   </>
@@ -333,9 +331,6 @@ const OrderDetail: React.FC = () => {
           {
             title: "Mahsulot O'lchami",
             dataIndex: ["productSizeVariant", "size"],
-          },
-          {
-            title: "",
           },
         ]}
       />

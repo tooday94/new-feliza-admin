@@ -185,7 +185,7 @@ const Products = () => {
                   page: String(initialPage),
                   limit: String(initialLimit),
                   tab,
-                  search: value, // 🔑 search URL ga yoziladi
+                  search: value, // search URL ga yoziladi
                 });
               }}
               allowClear
@@ -239,11 +239,11 @@ const Products = () => {
               <Tooltip
                 title={
                   <div>
-                    <p className="space-x-2">
+                    <p className="space-x-2 text-lg border p-3 text-nowrap">
                       <strong>Nomi:</strong>
                       <span>{text.nameUZB}</span>
                     </p>
-                    <p className="space-x-2">
+                    <p className="space-x-2 text-lg border p-3 text-nowrap">
                       <strong>Code:</strong>
                       <span>{text.colorCode}</span>
                     </p>
@@ -286,7 +286,7 @@ const Products = () => {
                 title={
                   <>
                     {category.map((cat: any) => (
-                      <p key={cat.id} className="text-sm">
+                      <p key={cat.id} className="border p-3">
                         <strong>
                           {cat.parentCategoryUZ && cat.parentCategoryUZ + " > "}
                         </strong>
@@ -412,6 +412,7 @@ const Products = () => {
                   }
                 >
                   <Tooltip
+                    placement="bottom"
                     title={
                       <div className="text-lg">
                         {record.productSizeVariantList.map((size: any) => (
@@ -445,7 +446,6 @@ const Products = () => {
               );
             },
           },
-
           {
             title: "Ref",
             dataIndex: "referenceNumber",
@@ -564,6 +564,7 @@ const Products = () => {
                   }
                 >
                   <Tooltip
+                    placement="bottom"
                     title={
                       <div className="text-sm">
                         {record.productSizeVariantList.map((variant: any) => (
@@ -594,7 +595,6 @@ const Products = () => {
               );
             },
           },
-
           {
             width: "0",
             fixed: "right",
