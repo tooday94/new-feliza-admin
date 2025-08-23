@@ -10,12 +10,10 @@ import {
   Form,
   Upload,
   Input,
-  message,
   Flex,
 } from "antd";
 import {
   DeleteOutlined,
-  EyeOutlined,
   SwapOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
