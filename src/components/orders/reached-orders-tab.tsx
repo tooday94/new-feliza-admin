@@ -145,10 +145,12 @@ export const ReachedOrdersTab = ({ endpoint }: { endpoint: string }) => {
         .toLowerCase()
         .includes((value as string).toLowerCase());
     },
-    onFilterDropdownOpenChange: (visible) => {
-      if (visible) {
-        setTimeout(() => searchInput.current?.select(), 100);
-      }
+    filterDropdownProps: {
+      onOpenChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInput.current?.select(), 100);
+        }
+      },
     },
     render: (_, record) => {
       const field = getValueByPath(record, dataIndex);

@@ -700,6 +700,7 @@ const Products = () => {
           <Image.PreviewGroup>
             {imagesList.map((item: any) => (
               <Image
+                key={item.id}
                 className="border-2 w-full object-cover !h-full"
                 src={item.url}
               />

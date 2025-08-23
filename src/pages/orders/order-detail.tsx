@@ -22,7 +22,6 @@ const OrderDetail: React.FC = () => {
     endpoint: endpoints.order.getById,
     id: id || "",
   });
-  console.log(data);
 
   const { mutate: orderToSend, isPending: orderToSendPending } = useUpdate({
     endpoint: endpoints.order.putToSend,
@@ -43,70 +42,226 @@ const OrderDetail: React.FC = () => {
   });
 
   return (
-    <Flex vertical gap={48} className="w-full">
+    <Flex vertical gap={48} className="w-full !mb-4">
       <Flex
         gap={24}
         justify="space-between"
         className="w-full flex-wrap md:flex-nowrap"
       >
-        <Flex vertical gap={24} className="h-fit md:max-w-2/3 w-full">
-          <Flex gap={12} className="rounded-md bg-white !p-3 w-full flex-wrap">
-            {data?.customer?.image?.url ? (
-              <Image
-                className="rounded-md !w-48 !h-full"
-                src={data?.customer?.image?.url}
-              />
-            ) : (
-              <div className="rounded-md w-48 flex justify-center items-center">
-                <BiUser size={48} />
-              </div>
-            )}
-            <Flex className="" justify="space-between" vertical gap={12}>
-              <h1>
-                <b>Ism Familiya: </b>
-                {data?.receiverName}
-              </h1>
-              <h1>
-                <b>Tel:</b> {data?.receiverPhoneNumber}
-              </h1>
-              <h1>
-                <b>Manzil: </b>
-                {data?.address?.region?.nameUZB},{" "}
-                {data?.address?.subRegion?.nameUZB},{" "}
-                {data?.address?.street
-                  ? data?.address?.street
-                  : data?.address?.postFilial?.postName +
-                    ", " +
-                    data?.address?.postFilial?.postFilialName}
-                {data?.address?.houseNumber}
-              </h1>
-              <h1>
-                <b>Buyurtma raqami: </b>
-                {data?.orderNumber}
-              </h1>
-              <h1>
-                <b>Buyurtma umumiy qiymati: </b>
-                {data?.orderCost}
-              </h1>
-              <h1>
-                <b>To'lov Turi: </b>
-                {data?.paymentMethod}
-              </h1>
-              <h1>
-                <b>Kupon: </b>
-                {data?.couponCustomer ? (
-                  <span className="text-secondary">
-                    {data?.couponCustomer?.coupon?.name}
-                  </span>
-                ) : (
-                  <span className="text-red-500">Yo'q</span>
-                )}
-              </h1>
-              <h1>
-                <b>Buyurtma qilingan vaqt: </b>
+        <Flex vertical gap={24} className="h-fit w-full">
+          <Flex
+            gap={12}
+            className="rounded-md bg-white !p-3 w-full justify-between"
+          >
+            <Flex gap={12} align="center">
+              {data?.customer?.image?.url ? (
+                <Image
+                  className="rounded-md !w-48 !h-full"
+                  src={data?.customer?.image?.url}
+                />
+              ) : (
+                <div className="rounded-md w-48 flex justify-center items-center">
+                  <BiUser size={48} />
+                </div>
+              )}
+              <Flex
+                className="text-accent"
+                justify="space-between"
+                vertical
+                gap={6}
+              >
+                <h1>
+                  Ism Familiya:
+                  <b className="text-primary ml-2">{data?.receiverName}</b>
+                </h1>
+                <h1>Tel: {data?.receiverPhoneNumber}</h1>
+                <h1>
+                  Manzil:
+                  <b className="text-primary ml-2">
+                    {data?.address?.region?.nameUZB},{" "}
+                    {data?.address?.subRegion?.nameUZB},{" "}
+                    {data?.address?.street
+                      ? data?.address?.street
+                      : data?.address?.postFilial?.postName +
+                        ", " +
+                        data?.address?.postFilial?.postFilialName}
+                    {data?.address?.houseNumber}
+                  </b>
+                </h1>
+                <h1>
+                  Buyurtma raqami:
+                  <b className="text-primary ml-2">{data?.orderNumber}</b>
+                </h1>
+                <h1>
+                  Buyurtma umumiy qiymati:
+                  <b className="text-primary ml-2">{data?.orderCost}</b>
+                </h1>
+                <h1>
+                  To'lov Turi:
+                  <b className="text-primary ml-2">{data?.paymentMethod}</b>
+                </h1>
+                <h1>
+                  Kupon:
+                  {data?.couponCustomer ? (
+                    <b className="text-primary ml-2">
+                      {data?.couponCustomer?.coupon?.name}
+                    </b>
+                  ) : (
+                    <b className="text-red-500 ml-2">Yo'q</b>
+                  )}
+                </h1>
+                <h1>
+                  Buyurtma qilingan vaqt:
+                  <b className="text-primary ml-2">
+                    {dateFormat(data?.createdAt || "")}
+                  </b>
+                </h1>
+              </Flex>
+            </Flex>
 
-                {dateFormat(data?.createdAt || "")}
-              </h1>
+            <Flex align="start" justify="space-between">
+              <Flex gap={24} justify="start" className="!w-full">
+                <Popconfirm
+                  title="Tasdiqlash"
+                  description="Buyurtmani bekor qilmoqchimisiz?"
+                  okText="Tasdiqlash"
+                  cancelText="Yo'q"
+                  onConfirm={() => (
+                    console.log("Bekor qilish"),
+                    orderToCancel(
+                      { id: data?.orderId, data: {} },
+                      {
+                        onError: () => toast.error("Buyurtma bekor qilinmadi"),
+                        onSuccess: () => {
+                          toast.success("Buyurtma bekor qilindi");
+                          refetch();
+                        },
+                      }
+                    )
+                  )}
+                  onOpenChange={() => console.log("open change")}
+                >
+                  <Button
+                    size="large"
+                    danger
+                    icon={<CloseCircleOutlined />}
+                    loading={orderToCancelPending}
+                    children="Bekor qilish"
+                    style={{
+                      display:
+                        data?.orderStatusType == "REJECTED" ? "none" : "block",
+                    }}
+                  />
+                </Popconfirm>
+
+                <Popconfirm
+                  title="Tasdiqlash"
+                  description="Buyurtma tayyorlandimi?"
+                  okText="Tasdiqlash"
+                  cancelText="Yo'q"
+                  onConfirm={() =>
+                    orderToPack(
+                      { id: data?.orderId, data: {} },
+                      {
+                        onError: () => toast.error("Buyurtma Tayyorlanmadi"),
+                        onSuccess: () => {
+                          toast.success("Buyurtma Tayyorlandi");
+                          refetch();
+                        },
+                      }
+                    )
+                  }
+                  onOpenChange={() => console.log("open change")}
+                >
+                  <Button
+                    loading={orderToPackPending}
+                    size="large"
+                    type="primary"
+                    icon={<CheckCircleOutlined />}
+                    children="Tayyorlandi"
+                  />
+                </Popconfirm>
+                <Popconfirm
+                  title="Tasdiqlash"
+                  description="Buyurtma tayyorlandimi?"
+                  okText="Tasdiqlash"
+                  cancelText="Yo'q"
+                  onConfirm={() => (
+                    console.log("Tayyorlandi"),
+                    orderToDelivered(
+                      { id: data?.orderId, data: {} },
+                      {
+                        onError: () => toast.error("Buyurtma Yetkazilmadi"),
+                        onSuccess: () => {
+                          toast.success("Buyurtma Yetkazildi");
+                          refetch();
+                        },
+                      }
+                    )
+                  )}
+                  onOpenChange={() => console.log("open change")}
+                >
+                  <Button
+                    loading={orderToPackPending}
+                    size="large"
+                    type="primary"
+                    className="!bg-green-500"
+                    style={{
+                      display:
+                        data?.orderStatusType != "SEND" ? "none" : "block",
+                    }}
+                    icon={<CheckCircleOutlined />}
+                    children="Yetkazildi"
+                  />
+                </Popconfirm>
+
+                <Flex
+                  // vertical
+                  gap={12}
+                  className={data?.orderStatusType == "SEND" ? "!hidden" : ""}
+                >
+                  <Input
+                    size="large"
+                    placeholder="Jo'natma Raqamini kiriting"
+                    className="h-fit"
+                    onChange={(e) => setTrackNumber(e.target.value)}
+                  />
+
+                  <Popconfirm
+                    title="Tasdiqlash"
+                    description="Buyurtma Jo'natishga tayyormi? va Jo'natma Raqamini to'g'ri kiritdingizmi?"
+                    okText="Tasdiqlash"
+                    cancelText="Yo'q"
+                    onConfirm={() => (
+                      console.log("Jo'natildi", data?.orderId),
+                      orderToSend(
+                        {
+                          id: data?.orderId,
+                          data: { postTrackingNumber: trackNumber },
+                        },
+                        {
+                          onError: () => toast.error("Buyurtma Jo'natilmadi"),
+                          onSuccess: () => {
+                            toast.success("Buyurtma Jo'natildi");
+                            refetch();
+                            setTrackNumber("");
+                          },
+                        }
+                      )
+                    )}
+                    onOpenChange={() => console.log("open change")}
+                  >
+                    <Button
+                      // disabled={!trackNumber.trim()}
+                      type="primary"
+                      loading={orderToSendPending}
+                      size="large"
+                      icon={<SendOutlined />}
+                      children="Jo'natildi"
+                    />
+                  </Popconfirm>
+                </Flex>
+              </Flex>
             </Flex>
           </Flex>
           <OrderShowSteps
@@ -117,158 +272,11 @@ const OrderDetail: React.FC = () => {
             }
           />
         </Flex>
-        <Flex
-          align="end"
-          vertical
-          justify="space-between"
-          className="w-full md:max-w-1/3"
-        >
-          <Flex gap={48} justify="start" vertical className="w-full">
-            <Popconfirm
-              title="Tasdiqlash"
-              description="Buyurtmani bekor qilmoqchimisiz?"
-              okText="Tasdiqlash"
-              cancelText="Yo'q"
-              onConfirm={() => (
-                console.log("Bekor qilish"),
-                orderToCancel(
-                  { id: data?.orderId, data: {} },
-                  {
-                    onError: () => toast.error("Buyurtma bekor qilinmadi"),
-                    onSuccess: () => {
-                      toast.success("Buyurtma bekor qilindi");
-                      refetch();
-                    },
-                  }
-                )
-              )}
-              onOpenChange={() => console.log("open change")}
-            >
-              <Button
-                size="large"
-                danger
-                icon={<CloseCircleOutlined />}
-                loading={orderToCancelPending}
-                children="Bekor qilish"
-                style={{
-                  display:
-                    data?.orderStatusType == "REJECTED" ? "none" : "block",
-                }}
-              />
-            </Popconfirm>
-
-            <Popconfirm
-              title="Tasdiqlash"
-              description="Buyurtma tayyorlandimi?"
-              okText="Tasdiqlash"
-              cancelText="Yo'q"
-              onConfirm={() =>
-                orderToPack(
-                  { id: data?.orderId, data: {} },
-                  {
-                    onError: () => toast.error("Buyurtma Tayyorlanmadi"),
-                    onSuccess: () => {
-                      toast.success("Buyurtma Tayyorlandi");
-                      refetch();
-                    },
-                  }
-                )
-              }
-              onOpenChange={() => console.log("open change")}
-            >
-              <Button
-                loading={orderToPackPending}
-                size="large"
-                type="primary"
-                icon={<CheckCircleOutlined />}
-                children="Tayyorlandi"
-              />
-            </Popconfirm>
-            <Popconfirm
-              title="Tasdiqlash"
-              description="Buyurtma tayyorlandimi?"
-              okText="Tasdiqlash"
-              cancelText="Yo'q"
-              onConfirm={() => (
-                console.log("Tayyorlandi"),
-                orderToDelivered(
-                  { id: data?.orderId, data: {} },
-                  {
-                    onError: () => toast.error("Buyurtma Yetkazilmadi"),
-                    onSuccess: () => {
-                      toast.success("Buyurtma Yetkazildi");
-                      refetch();
-                    },
-                  }
-                )
-              )}
-              onOpenChange={() => console.log("open change")}
-            >
-              <Button
-                loading={orderToPackPending}
-                size="large"
-                type="primary"
-                className="!bg-green-500"
-                style={{
-                  display: data?.orderStatusType != "SEND" ? "none" : "block",
-                }}
-                icon={<CheckCircleOutlined />}
-                children="Yetkazildi"
-              />
-            </Popconfirm>
-
-            <Flex
-              vertical
-              gap={12}
-              className={data?.orderStatusType == "SEND" ? "!hidden" : ""}
-            >
-              <Input
-                size="large"
-                placeholder="Jo'natma Raqamini kiriting"
-                className="h-fit"
-                onChange={(e) => setTrackNumber(e.target.value)}
-              />
-
-              <Popconfirm
-                title="Tasdiqlash"
-                description="Buyurtma Jo'natishga tayyormi? va Jo'natma Raqamini to'g'ri kiritdingizmi?"
-                okText="Tasdiqlash"
-                cancelText="Yo'q"
-                onConfirm={() => (
-                  console.log("Jo'natildi", data?.orderId),
-                  orderToSend(
-                    {
-                      id: data?.orderId,
-                      data: { postTrackingNumber: trackNumber },
-                    },
-                    {
-                      onError: () => toast.error("Buyurtma Jo'natilmadi"),
-                      onSuccess: () => {
-                        toast.success("Buyurtma Jo'natildi");
-                        refetch();
-                        setTrackNumber("");
-                      },
-                    }
-                  )
-                )}
-                onOpenChange={() => console.log("open change")}
-              >
-                <Button
-                  disabled={!trackNumber.trim()}
-                  loading={orderToSendPending}
-                  size="large"
-                  icon={<SendOutlined />}
-                  children="Jo'natildi"
-                />
-              </Popconfirm>
-            </Flex>
-          </Flex>
-        </Flex>
       </Flex>
 
       <Table
         bordered
-        size="large"
+        size="small"
         scroll={{ x: "max-content" }}
         loading={isLoading}
         dataSource={data?.orderDetailDtos}
@@ -307,12 +315,12 @@ const OrderDetail: React.FC = () => {
             dataIndex: "productName",
           },
           {
-            title: "BarCode",
-            dataIndex: ["productSizeVariant", "barCode"],
-          },
-          {
             title: "Mahsulot Ref",
             dataIndex: ["referenceNumber"],
+          },
+          {
+            title: "BarCode",
+            dataIndex: ["productSizeVariant", "barCode"],
           },
           {
             title: "Sotish narxi",
@@ -323,16 +331,17 @@ const OrderDetail: React.FC = () => {
             dataIndex: ["productCost"],
           },
           {
+            title: "Mahsulot O'lchami",
+            dataIndex: ["productSizeVariant", "size"],
+          },
+          {
             width: "0",
             align: "center",
             title: "Mahsulot soni",
             dataIndex: "quantity",
           },
-          {
-            title: "Mahsulot O'lchami",
-            dataIndex: ["productSizeVariant", "size"],
-          },
         ]}
+        pagination={false}
       />
     </Flex>
   );

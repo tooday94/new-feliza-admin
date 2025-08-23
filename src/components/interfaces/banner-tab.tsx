@@ -10,7 +10,6 @@ import {
   Form,
   Upload,
   Input,
-  message,
   Flex,
 } from "antd";
 import {
@@ -26,6 +25,7 @@ import type { CategoriesAllType } from "../../types/categories-type";
 import { useGetById } from "../../services/query/useGetById";
 import type { Product } from "../../types/products-type";
 import { useDeleteById } from "../../services/mutation/useDeleteById";
+import { toast } from "react-toastify";
 
 const { Option } = Select;
 
@@ -37,6 +37,9 @@ const BannerTab = () => {
   );
   const [productId, setproductId] = useState("");
   const [lookid, setlookid] = useState("");
+
+  const [mobilePreview, setMobilePreview] = useState<any[]>([]);
+  const [desktopPreview, setDesktopPreview] = useState<any[]>([]);
 
   const { data: carouselList, isLoading } = useGetList<KaruselItemType[]>({
     endpoint: endpoints.karusel.getAll,
@@ -67,7 +70,10 @@ const BannerTab = () => {
     enabled: false, // manually triggered
   });
 
-  const { data: lookList } = useGetById<{ images: [{ url: string }] }>({
+  const { data: lookList } = useGetById<{
+    id: number;
+    images: [{ url: string }];
+  }>({
     endpoint: endpoints.look.getById,
     id: lookid,
     enabled: !!lookid,
@@ -95,8 +101,12 @@ const BannerTab = () => {
 
     createCarousel(formData, {
       onSuccess: () => {
-        message.success("Yangi Karusel qo'shildi!");
+        toast.success("Yangi Karusel qo'shildi!");
         form.resetFields();
+      },
+      onError: (err) => {
+        console.log(err);
+        toast.error("Xatolik yuz berdi, qayta urinib ko'ring");
       },
     });
   };
@@ -104,54 +114,136 @@ const BannerTab = () => {
   return (
     <div className="flex flex-col gap-6 md:px-4">
       <Card className="mx-auto shadow-lg rounded-xl p-4">
-        <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Flex justify="space-between" gap={48} wrap>
-            <Flex gap={48} wrap className="max-w-md w-full">
-              <Form.Item
-                label="Mobile Image"
-                name="mobileImg"
-                valuePropName="fileList"
-                getValueFromEvent={(e) => e.fileList}
-                rules={[{ required: true, message: "Upload mobile image" }]}
-              >
-                <Upload
-                  maxCount={1}
-                  beforeUpload={() => false}
-                  listType="picture"
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          initialValues={{
+            karuselType: "category_id",
+          }}
+        >
+          <Flex
+            justify="space-between"
+            gap={48}
+            className="!mb-4 flex-wrap md:flex-nowrap"
+          >
+            <Flex
+              gap={48}
+              justify="space-between"
+              // vertical
+              className="max-w-4xl w-full"
+            >
+              <Flex vertical>
+                <Form.Item
+                  label="Mobile Image"
+                  name="mobileImg"
+                  valuePropName="fileList"
+                  getValueFromEvent={(e) => e.fileList}
+                  rules={[{ required: true, message: "Upload mobile image" }]}
                 >
-                  <Button icon={<UploadOutlined />}>Upload Mobile Image</Button>
-                </Upload>
-              </Form.Item>
+                  <Upload
+                    maxCount={1}
+                    beforeUpload={() => false}
+                    listType="picture"
+                    showUploadList={false} // antd ning default listini o‘chirib qo‘yamiz
+                    onChange={({ fileList }) => setMobilePreview(fileList)}
+                  >
+                    <Button size="large" icon={<UploadOutlined />}>
+                      Telefon uchun rasm yuklash
+                    </Button>
+                  </Upload>
+                </Form.Item>
 
-              <Form.Item
-                label="Desktop Image"
-                name="desktopImg"
-                valuePropName="fileList"
-                getValueFromEvent={(e) => e.fileList}
-                rules={[{ required: true, message: "Upload desktop image" }]}
-              >
-                <Upload
-                  maxCount={1}
-                  beforeUpload={() => false}
-                  listType="picture"
+                {/* Mobile preview card */}
+                {mobilePreview.map((file) => {
+                  const url =
+                    file.url || URL.createObjectURL(file.originFileObj);
+                  return (
+                    <Flex className="border relative justify-center w-fit">
+                      <Image
+                        src={url}
+                        alt="mobile preview"
+                        style={{ height: 300, objectFit: "contain" }}
+                      />
+                      <Button
+                        className="!absolute top-1 right-1"
+                        icon={<DeleteOutlined />}
+                        danger
+                        onClick={() => (
+                          setMobilePreview(
+                            mobilePreview.filter((f) => f.uid !== file.uid)
+                          ),
+                          form.setFieldsValue({ mobileImg: [] })
+                        )}
+                      />
+                    </Flex>
+                  );
+                })}
+              </Flex>
+
+              <Flex vertical justify="start" className="w-full">
+                <Form.Item
+                  label="Desktop Image"
+                  name="desktopImg"
+                  valuePropName="fileList"
+                  getValueFromEvent={(e) => e.fileList}
+                  rules={[{ required: true, message: "Upload desktop image" }]}
                 >
-                  <Button icon={<UploadOutlined />}>
-                    Upload Desktop Image
-                  </Button>
-                </Upload>
-              </Form.Item>
+                  <Upload
+                    maxCount={1}
+                    beforeUpload={() => false}
+                    listType="picture"
+                    showUploadList={false}
+                    onChange={({ fileList }) => setDesktopPreview(fileList)}
+                  >
+                    <Button size="large" icon={<UploadOutlined />}>
+                      Kompyuter uchun rasm yuklash
+                    </Button>
+                  </Upload>
+                </Form.Item>
+
+                {/* Desktop preview card */}
+                {desktopPreview.map((file) => {
+                  const url =
+                    file.url || URL.createObjectURL(file.originFileObj);
+                  return (
+                    <Flex className="relative justify-center w-fit border">
+                      <Image
+                        src={url}
+                        alt="desktop preview"
+                        style={{
+                          height: 300,
+                          objectFit: "contain",
+                          width: 600,
+                        }}
+                      />
+                      <Button
+                        className="!absolute top-1 right-1"
+                        icon={<DeleteOutlined />}
+                        danger
+                        onClick={() => (
+                          setDesktopPreview(
+                            desktopPreview.filter((f) => f.uid !== file.uid)
+                          ),
+                          form.setFieldsValue({ desktopImg: [] })
+                        )}
+                      />
+                    </Flex>
+                  );
+                })}
+              </Flex>
             </Flex>
 
             <Flex vertical>
               <Flex gap={24} wrap>
                 <Form.Item
                   className="w-full"
-                  label="Carousel Type"
+                  label="Banner Turini tanlang"
                   name="karuselType"
                   rules={[{ required: true, message: "Please select type" }]}
                 >
                   <Select
-                    defaultValue="category_id"
+                    size="large"
                     onChange={(value) => {
                       setbannerType(value);
                       form.setFieldsValue({ parameterId: undefined });
@@ -173,8 +265,9 @@ const BannerTab = () => {
                 >
                   {bannerType === "category_id" && (
                     <Select
+                      size="large"
                       className="min-w-full !w-full md:min-w-sm"
-                      placeholder="Select a category"
+                      placeholder="Kategoriya tanlang"
                       showSearch
                       optionFilterProp="label"
                       filterSort={(a, b) =>
@@ -190,11 +283,21 @@ const BannerTab = () => {
                   {bannerType === "product_id" && (
                     <div className="flex flex-col sm:flex-row gap-2">
                       <Input
-                        placeholder="Enter product ID"
+                        size="large"
+                        placeholder="Mahsulot ID sini kiriting"
                         value={productId}
                         onChange={(e) => setproductId(e.target.value)}
+                        onPressEnter={async () => {
+                          if (!productId) return;
+                          form.setFieldsValue({
+                            parameterId: Number(productId),
+                          });
+                          const { data } = await refetchProduct();
+                          if (!data) toast.error("Mahsulot topilmadi");
+                        }}
                       />
                       <Button
+                        size="large"
                         type="primary"
                         className="w-full sm:w-auto"
                         onClick={async () => {
@@ -203,10 +306,10 @@ const BannerTab = () => {
                             parameterId: Number(productId),
                           });
                           const { data } = await refetchProduct();
-                          if (!data) message.error("Product not found");
+                          if (!data) toast.error("Mahsulot topilmadi");
                         }}
                       >
-                        Search
+                        Qidirish
                       </Button>
                     </div>
                   )}
@@ -214,11 +317,17 @@ const BannerTab = () => {
                   {bannerType === "look_id" && (
                     <div className="flex flex-col sm:flex-row gap-2">
                       <Input
-                        placeholder="Enter look ID"
+                        size="large"
+                        placeholder="Look ID sini kiriting"
                         value={lookid}
                         onChange={(e) => setlookid(e.target.value)}
+                        onPressEnter={() => {
+                          if (!lookid) return;
+                          form.setFieldsValue({ parameterId: Number(lookid) });
+                        }}
                       />
                       <Button
+                        size="large"
                         type="primary"
                         className="w-full sm:w-auto"
                         onClick={() => {
@@ -226,7 +335,7 @@ const BannerTab = () => {
                           form.setFieldsValue({ parameterId: Number(lookid) });
                         }}
                       >
-                        Search
+                        Qidirish
                       </Button>
                     </div>
                   )}
@@ -237,12 +346,12 @@ const BannerTab = () => {
                 {bannerType === "product_id" && productList && (
                   <Card
                     className="mb-4 max-w-md mx-auto"
-                    title={`Product: ${productList.nameUZB}`}
+                    title={`Mahsulot: ${productList.nameUZB}`}
                     cover={
                       <Image
                         src={productList.productImages?.[0]?.url}
                         alt="Product"
-                        style={{ height: 100, objectFit: "contain" }}
+                        style={{ height: 200, objectFit: "contain" }}
                       />
                     }
                   />
@@ -251,12 +360,12 @@ const BannerTab = () => {
                 {bannerType === "look_id" && lookList && (
                   <Card
                     className="mb-4 max-w-md mx-auto"
-                    title="Look preview"
+                    title={`Look ID: ${lookList?.id}`}
                     cover={
                       <Image
                         src={lookList.images?.[0]?.url}
                         alt="Look"
-                        style={{ height: 100, objectFit: "contain" }}
+                        style={{ height: 200, objectFit: "contain" }}
                       />
                     }
                   />
@@ -267,12 +376,12 @@ const BannerTab = () => {
 
           <Form.Item>
             <Button
+              size="large"
               type="primary"
               htmlType="submit"
               loading={isPending}
-              className=" bg-blue-600 hover:bg-blue-700"
             >
-              Add Carousel
+              Banner Qo'shish
             </Button>
           </Form.Item>
         </Form>
@@ -299,7 +408,7 @@ const BannerTab = () => {
                     }
                     style={{
                       height: 200,
-                      objectFit: "cover",
+                      objectFit: "contain",
                       width: "100%",
                     }}
                   />

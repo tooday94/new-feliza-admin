@@ -45,7 +45,7 @@ const Notifications = () => {
     id: searchedUserID,
     enabled: searchedUserID ? true : false,
   });
-  console.log(searchedUserData);
+  // console.log(searchedUserData);
 
   const { data: allCategory } = useGetList<CategoriesAllType[]>({
     endpoint: endpoints.category.getAll,

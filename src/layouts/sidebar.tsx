@@ -35,12 +35,20 @@ const menuSections: MenuSection[] = [
         label: "Statistika",
       },
       {
+        key: "/admin/orders",
+        icon: <ShoppingOutlined />,
+        label: "Buyurtmalar",
+      },
+      {
         key: "/admin/products",
         icon: <ProductOutlined />,
         label: "Mahsulotlar",
       },
-      { key: "/admin/users", icon: <TeamOutlined />, label: "Mijozlar" },
-      { key: "/admin/admins", icon: <TeamOutlined />, label: "Adminlar" },
+      {
+        key: "/admin/interfaces",
+        icon: <LayoutOutlined />,
+        label: "Interfaces",
+      },
       {
         key: "/admin/settings",
         icon: <SettingOutlined />,
@@ -51,20 +59,12 @@ const menuSections: MenuSection[] = [
   {
     title: "Boshqa",
     items: [
-      {
-        key: "/admin/orders",
-        icon: <ShoppingOutlined />,
-        label: "Buyurtmalar",
-      },
+      { key: "/admin/users", icon: <TeamOutlined />, label: "Mijozlar" },
+      { key: "/admin/admins", icon: <TeamOutlined />, label: "Adminlar" },
       {
         key: "/admin/sales",
         icon: <PercentageOutlined />,
         label: "Chegirmalar",
-      },
-      {
-        key: "/admin/interfaces",
-        icon: <LayoutOutlined />,
-        label: "Interfaces",
       },
       {
         key: "/admin/notifications",
