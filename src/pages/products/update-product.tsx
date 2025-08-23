@@ -499,8 +499,8 @@ const UpdateProduct = () => {
                         ) : null
                       }
                       style={{
-                        width: 60,
-                        height: 40,
+                        width: 50,
+                        height: 30,
                         fontWeight: "bold",
                         cursor: "pointer",
                         background: color.colorCode,

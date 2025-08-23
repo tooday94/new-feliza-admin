@@ -138,13 +138,15 @@ const Collection: React.FC = () => {
                 <Button icon={<UploadOutlined />}>Rasm yuklash</Button>
               </Upload>
             ) : (
-              <div style={{ position: "relative" }}>
+              <div className="text-center" style={{ position: "relative" }}>
                 <Image
                   src={URL.createObjectURL(lookImage)}
                   width="100%"
                   height={200}
-                  style={{ objectFit: "cover" }}
+                  style={{ objectFit: "contain" }}
+                  title="Yuklangan rasm"
                 />
+                <span>Lookning Rasmi</span>
                 <Button
                   icon={<DeleteOutlined />}
                   danger
@@ -172,8 +174,14 @@ const Collection: React.FC = () => {
                       src={item?.productImages?.[0]?.url}
                       width={200}
                       style={{ objectFit: "cover" }}
-                      preview={false}
+                      // preview={false}
                     />
+                    <div className="absolute bottom-0 left-0 bg-white/50 w-full text-center">
+                      <span className="">ID: {item.id}</span>
+                      <span className="font-semibold line-clamp-1">
+                        {item.nameUZB}
+                      </span>
+                    </div>
                   </Flex>
                 </Col>
               ))}

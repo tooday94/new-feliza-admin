@@ -42,7 +42,7 @@ const MenuSettings = ({ menuType }: { menuType: "MENU_1" | "MENU_2" }) => {
   const [editItem, setEditItem] = useState<CategoryBlockType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedParentName] = useState("");
-  console.log(editItem);
+  // console.log(editItem);
 
   const { data: parentCategories } = useGetList<Category[]>({
     endpoint: endpoints.category.getParent,
@@ -63,7 +63,7 @@ const MenuSettings = ({ menuType }: { menuType: "MENU_1" | "MENU_2" }) => {
   const { data, isLoading } = useGetList<CategoryBlockType[]>({
     endpoint: "/api/categoryBlock/getAllByCategoryBlockType/" + menuType,
   });
-  console.log(data);
+  // console.log(data);
 
   const { mutate } = useUpdate({
     endpoint: "/api/categoryBlock/editCategoryBlock/",

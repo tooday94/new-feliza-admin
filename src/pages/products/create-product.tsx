@@ -15,6 +15,7 @@ import {
   CloseOutlined,
   LeftOutlined,
   PlusOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
@@ -37,7 +38,6 @@ const CreateProduct = () => {
   const [referenceNumber, setReferenceNumber] = useState("");
   const [selectedColors, setSelectedColors] = useState<number[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  console.log(selectedSizes);
 
   const [sizeDetails, setSizeDetails] = useState<
     {
@@ -87,8 +87,6 @@ const CreateProduct = () => {
     { imagesList: UploadFile[]; colorId: number }[]
   >([]);
 
-  console.log(colorImages);
-
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const { mutate: AddProduct } = useCreate({
@@ -96,7 +94,7 @@ const CreateProduct = () => {
     queryKey: endpoints.products.getAll,
   });
 
-  const { data } = useGetList<allColorsType[]>({
+  const { data, refetch } = useGetList<allColorsType[]>({
     endpoint: endpoints.color.getAll,
   });
 
@@ -125,12 +123,10 @@ const CreateProduct = () => {
         .map((sub) => ({
           title: sub.nameUZB,
           value: sub.id.toString(),
-          // icon: <SubnodeOutlined />,
           className: "text-lg",
         }));
 
       return {
-        // icon: <AppstoreOutlined />,
         className: "text-xl",
         title: parent.nameUZB,
         value: parent.id.toString(),
@@ -211,15 +207,14 @@ const CreateProduct = () => {
           setColorImages([]),
           setReferenceNumber(""),
           setSelectedSizes([]),
-          setSizeDetails([])
+          setSizeDetails([]),
+          setSelectedColors([])
         ),
         onError: () =>
           toast.error("Mahsulot Qo'shishda Xatolik. Qayta urinib ko'ring..."),
       });
     });
   };
-
-  console.log(selectedSizes);
 
   const handlePreview = async (file: UploadFile) => {
     let src = file.url as string;
@@ -377,7 +372,7 @@ const CreateProduct = () => {
           </Flex>
 
           <Flex
-            className="flex-wrap md:flex-nowrap"
+            className="flex-wrap-reverse"
             gap={12}
             justify="space-between"
             align="center"
@@ -394,11 +389,6 @@ const CreateProduct = () => {
                   name={"ikpuNumber"}
                   label="IKPU nomer"
                 >
-                  {/* <Input
-                    allowClear
-                    size="large"
-                    placeholder="IKPU nomer kiriting"
-                  /> */}
                   <Select
                     showSearch
                     mode="tags"
@@ -435,11 +425,6 @@ const CreateProduct = () => {
                   name={"mxikNumber"}
                   label="MXIK nomer"
                 >
-                  {/* <Input
-                    allowClear
-                    size="large"
-                    placeholder="MXIK nomer kiriting"
-                  /> */}
                   <Select
                     mode="tags"
                     maxCount={1}
@@ -629,7 +614,22 @@ const CreateProduct = () => {
           </Flex>
 
           <Flex className="flex-wrap-reverse md:flex-nowrap" gap={12}>
-            <Form.Item name={"colorIds"} label="Ranglar" className="w-fit">
+            <Form.Item
+              name={"colorIds"}
+              label={
+                <Flex align="center" gap={12}>
+                  <h1>Ranglar</h1>
+                  <Button
+                    title="Yangilash"
+                    size="small"
+                    icon={<ReloadOutlined />}
+                    type="primary"
+                    onClick={() => refetch()}
+                  />
+                </Flex>
+              }
+              className="w-fit"
+            >
               <div className="flex flex-wrap justify-center md:justify-start gap-2 border max-h-96 h-full overflow-y-scroll">
                 {data?.map((color) => (
                   <Tooltip title={color.nameUZB} key={color.id}>
@@ -643,8 +643,8 @@ const CreateProduct = () => {
                         ) : null
                       }
                       style={{
-                        width: 60,
-                        height: 40,
+                        width: 50,
+                        height: 30,
                         fontWeight: "bold",
                         cursor: "pointer",
                         background: color.colorCode,
@@ -750,15 +750,7 @@ const CreateProduct = () => {
                 >
                   {/* Rang box va file tanlash */}
                   <div className="flex flex-wrap md:flex-nowrap gap-4">
-                    <div className="flex flex-col items-center !gap-4 flex-wrap md:flex-nowrap">
-                      <div className="text-center space-y-2">
-                        <div
-                          className="w-10 h-10 rounded-md border mx-auto"
-                          style={{ backgroundColor: colorObj?.colorCode }}
-                        />
-                        <span className="font-medium">{colorObj?.nameUZB}</span>
-                      </div>
-
+                    <div className="flex items-center !gap-4 flex-wrap md:flex-nowrap">
                       <SortableUpload
                         colorId={colorId}
                         colorImages={colorImages}
@@ -777,13 +769,18 @@ const CreateProduct = () => {
                         align="start"
                         gap={12}
                       >
-                        <Flex className="border w-1/2">
+                        <Flex className="border min:w-1/2 w-full ">
                           <Tooltip title={size}>
                             <div
-                              className="p-2 w-full text-center"
+                              className="p-2 !w-full text-center relative"
                               style={{ background: colorObj?.colorCode }}
                             >
-                              {size}
+                              <div style={{ color: colorObj?.colorCode }}>
+                                {size}
+                              </div>
+                              <div className="absolute -bottom-6 w-full left-0">
+                                {size}
+                              </div>
                             </div>
                           </Tooltip>
                         </Flex>

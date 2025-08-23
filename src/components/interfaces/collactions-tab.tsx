@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useGetList } from "../../services/query/useGetList";
 import { endpoints } from "../../configs/endpoints";
 import type { LookType } from "../../types/look-type";
-import { Button, Image, Modal, Popconfirm, Spin } from "antd";
+import { Button, Flex, Image, Modal, Popconfirm, Spin } from "antd";
 import { DeleteOutlined, EyeFilled } from "@ant-design/icons";
 import { useGetById } from "../../services/query/useGetById";
 import Collection from "./add-collactions";
@@ -31,15 +31,12 @@ const CollactionsTab = () => {
     mutate(
       { id: id },
       {
-        onSuccess: (res) => {
-          console.log(res);
-
+        onSuccess: () => {
           toast.success("Look O'chirildi!", { position: "top-center" });
         },
         onError: (err) => {
           console.log(err);
-
-          toast.error("Look o'chirishda xatolik: " + err.message, {
+          toast.error("Look o'chirishda xatolik", {
             position: "top-center",
           });
         },
@@ -55,27 +52,38 @@ const CollactionsTab = () => {
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {data?.map((item) => (
-            <div>
+            <div key={item.id}>
               {item.images.map((look) => (
-                <div className="relative w-fit">
-                  <Popconfirm
-                    title="Tasdiqlash"
-                    description="Haqiqatdan hamo'chirmoqchimisiz?"
-                    onConfirm={() => handleDelete(item.id)}
-                    okText="Albatta"
-                    cancelText="Yo'q"
+                <div key={look.id} className="relative w-fit">
+                  <Flex
+                    justify="space-between"
+                    align="center"
+                    className="!absolute w-full !px-2 !border !top-0"
                   >
+                    <Popconfirm
+                      title="Tasdiqlash"
+                      description="Haqiqatdan hamo'chirmoqchimisiz?"
+                      onConfirm={() => handleDelete(item.id)}
+                      okText="Albatta"
+                      cancelText="Yo'q"
+                    >
+                      <Button
+                        danger
+                        className=" !z-20 right-1 top-1"
+                        icon={<DeleteOutlined />}
+                      />
+                    </Popconfirm>
+                    <p className="z-20 md:text-xl bg-white/50 p-1 rounded-b">
+                      look ID: {item.id}
+                    </p>
                     <Button
-                      danger
-                      className="!absolute !z-20 right-1 top-1"
-                      icon={<DeleteOutlined />}
+                      onClick={() => (
+                        setdetailId(item.id), setmodalDetail(true)
+                      )}
+                      className=" !z-20 left-1 top-1"
+                      icon={<EyeFilled />}
                     />
-                  </Popconfirm>
-                  <Button
-                    onClick={() => (setdetailId(item.id), setmodalDetail(true))}
-                    className="!absolute !z-20 left-1 top-1"
-                    icon={<EyeFilled />}
-                  />
+                  </Flex>
                   <Image
                     className="min-h-64 !h-full max-h-96"
                     src={look.url}
