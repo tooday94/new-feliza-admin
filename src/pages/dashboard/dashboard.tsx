@@ -7,19 +7,39 @@ import {
   Typography,
   Statistic,
   Button,
+  Table,
+  DatePicker,
+  Flex,
 } from "antd";
 import { Column, Pie } from "@ant-design/plots";
 import { useGetList } from "../../services/query/useGetList";
 import { endpoints } from "../../configs/endpoints";
 import type { AdminType } from "../../types/admin-type";
 import { GoDownload } from "react-icons/go";
+import dayjs from "dayjs";
+import { useState } from "react";
+import { dateFormat } from "../../utils/formatDate";
 
 const { Title, Text } = Typography;
 
 const Dashboard = () => {
+  const today = dayjs().format("YYYY-MM-DD");
+  const [selectedDate, setSelectedDate] = useState(today);
   const { data, isLoading } = useGetList<AdminType[]>({
     endpoint: endpoints.order.getAll,
   });
+  const { data: PaymenetSale } = useGetList<AdminType[]>({
+    endpoint: endpoints.payment.getAll,
+    enabled: !selectedDate,
+  });
+  const { data: PaymentByDate } = useGetList<AdminType[]>({
+    endpoint: endpoints.payment.getByDate,
+    params: {
+      date: selectedDate, // O'zgartiring kerak bo'lsa
+    },
+    enabled: !!selectedDate, // Agar selectedDate mavjud bo'lsa, so'rov yuborilsin
+  });
+  console.log("Payment Sale Data:", PaymentByDate);
 
   if (isLoading) {
     return (
@@ -119,12 +139,12 @@ const Dashboard = () => {
       {/* Statistikalar */}
       <Row gutter={[16, 16]} className="mb-6">
         <Col xs={24} sm={12} md={6}>
-          <Card bordered={false} className="shadow-md rounded-xl">
+          <Card variant={"borderless"} className="shadow-md rounded-xl">
             <Statistic title="Jami buyurtmalar" value={totalOrders} />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card bordered={false} className="shadow-md rounded-xl">
+          <Card variant={"borderless"} className="shadow-md rounded-xl">
             <Statistic
               title="To‘langan"
               value={paidOrders}
@@ -133,7 +153,7 @@ const Dashboard = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card bordered={false} className="shadow-md rounded-xl">
+          <Card variant={"borderless"} className="shadow-md rounded-xl">
             <Statistic
               title="To‘lanmagan"
               value={unpaidOrders}
@@ -142,7 +162,7 @@ const Dashboard = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card bordered={false} className="shadow-md rounded-xl">
+          <Card variant={"borderless"} className="shadow-md rounded-xl">
             <Statistic
               title="Yetkazilmagan"
               value={notDelivered.length}
@@ -151,9 +171,20 @@ const Dashboard = () => {
           </Card>
         </Col>
       </Row>
+      {/* <div>
+        {PaymenetSale?.map((item) => {
+          return (
+            <>
+              <h1>{item.payDate}</h1>
+              <h2>{item.paySum}</h2>
+            </>
+          );
+        })}
+      </div> */}
 
       {/* Diagrammalar */}
       <Row gutter={[24, 24]} className="mb-6">
+        {/* Pie Chart - To'lov Holati */}
         <Col xs={24} lg={12}>
           <Card title="To‘lov holati" className="rounded-xl shadow">
             <Pie
@@ -179,26 +210,69 @@ const Dashboard = () => {
           </Card>
         </Col>
 
-        {/* <Col xs={24} lg={12}>
-          <Card title="Buyurtma statuslari" className="rounded-xl shadow">
-            <Pie
-              data={Object.entries(statusCounts).map(([key, value]) => ({
-                type: key,
-                value,
-              }))}
-              angleField="value"
-              colorField="type"
-              radius={0.9}
-              label={{
-                type: "spider",
-                content: "{name}: {value}",
-              }}
-              color={["#fa541c", "#faad14", "#13c2c2", "#a0d911", "#9254de"]}
-              interactions={[{ type: "element-active" }]}
-              legend={{ position: "bottom" }}
+        {/* To'lovlar Ro'yxati */}
+        <Col xs={24} lg={12}>
+          <Card
+            title={
+              <Flex justify="space-between" align="center">
+                <h1>So‘nggi to‘lovlar</h1>
+                <DatePicker
+                  onChange={(_: any, date: string | string[]) => {
+                    if (typeof date === "string") {
+                      setSelectedDate(date);
+                    }
+                    if (!date) {
+                      setSelectedDate("");
+                      return;
+                    }
+                  }}
+                  format={"YYYY-MM-DD"}
+                  value={
+                    selectedDate ? dayjs(selectedDate, "YYYY-MM-DD") : null
+                  }
+                />
+              </Flex>
+            }
+            className="rounded-xl shadow"
+          >
+            <Table
+              dataSource={selectedDate ? PaymentByDate : PaymenetSale}
+              pagination={false}
+              scroll={{ y: 434 }}
+              size="middle"
+              bordered
+              // rowKey={(record, index) => index.toString()}
+              columns={[
+                {
+                  width: "70px",
+                  title: "#",
+                  render: (_: any, __: any, index: number) => index + 1,
+                  key: "index",
+                },
+                {
+                  // width: "0",
+                  title: "Sana",
+                  dataIndex: "payDate",
+                  key: "payDate",
+                  render: (text: string) => (
+                    <span className="text-gray-700">{dateFormat(text)}</span>
+                  ),
+                },
+                {
+                  title: "Summasi",
+                  dataIndex: "paySum",
+                  key: "paySum",
+                  render: (value: number) => (
+                    <span className="text-green-600 font-semibold">
+                      {value.toLocaleString()} so‘m
+                    </span>
+                  ),
+                },
+              ]}
             />
           </Card>
-        </Col> */}
+        </Col>
+        {/*  */}
         <Col span={24}>
           <Card>
             <Typography.Title level={5} style={{ textAlign: "center" }}>
