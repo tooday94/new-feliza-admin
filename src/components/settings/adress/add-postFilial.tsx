@@ -8,7 +8,7 @@ import {
   Table,
   Tooltip,
 } from "antd";
-import { EditTwoTone, DeleteTwoTone, PlusOutlined } from "@ant-design/icons";
+import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
 import { useGetList } from "../../../services/query/useGetList";
 import { endpoints } from "../../../configs/endpoints";
 import type { AddPostFilialType } from "../../../types/settingsTypes/add-postFilial";
@@ -22,7 +22,7 @@ const AddPostFilial = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false); // yangi holat
   // Ma'lumotlarni olish
-  const { data, isLoading } = useGetList<AddPostFilialType[]>({
+  const { data: addPost, isLoading } = useGetList<AddPostFilialType[]>({
     endpoint: endpoints.address.postFilials.getAll,
   });
   // viloayt uchun
@@ -33,7 +33,7 @@ const AddPostFilial = () => {
     endpoint: endpoints.address.subRegions.getAll,
   });
   // Pochta filialini qo'shish, tahrirlash va o'chirish uchun mutatsiyalar
-  const { mutate } = useCreate({
+  const { mutate: addMutate } = useCreate({
     endpoint: endpoints.address.postFilials.post,
     queryKey: endpoints.address.postFilials.getAll,
   });
@@ -112,7 +112,7 @@ const AddPostFilial = () => {
       subRegionId: values.tumanId,
     };
 
-    mutate(payload, {
+    addMutate(payload, {
       onSuccess: () => {
         setIsModalOpen(false);
         form.resetFields();
@@ -247,6 +247,7 @@ const AddPostFilial = () => {
     setIsEditing(false); // yangi holat
     form.resetFields(); // Formni tozalash
   };
+  console.log(showModal);
 
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -254,25 +255,19 @@ const AddPostFilial = () => {
   };
   return (
     <div>
-      {/* MOdal */}
-      <Modal
-        title="Pochta filialini qo'shish"
-        open={isModalOpen}
-        onCancel={handleCancel}
-        width={600}
-        footer={null}
-        maskClosable={false}
-      >
+      <div className="bg-white shadow-md rounded-lg p-6">
+        <h2 className="text-xl font-semibold mb-4 border-b">
+          Pochta filial qo'shish
+        </h2>
+
         <Form
           form={form}
           layout="vertical"
-          onFinish={(values) => {
-            if (isEditing) {
-              handleEditPostFilial(values);
-            } else {
-              handleAddPostFilial(values);
-            }
-          }}
+          onFinish={(values) =>
+            isEditing
+              ? handleEditPostFilial(values)
+              : handleAddPostFilial(values)
+          }
           initialValues={{
             regionId: null,
             tumanId: null,
@@ -284,144 +279,296 @@ const AddPostFilial = () => {
             descriptionUZB: "",
             descriptionRUS: "",
           }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-1"
         >
-          <div className="p-4">
-            {/* Viloyat tanlash */}
-            <Form.Item
-              label="Viloyat"
-              name="regionId"
-              rules={[{ required: true, message: "Viloyatni tanlang!" }]}
-            >
-              <Select
-                placeholder="Viloyatni tanlang"
-                options={regionsData?.map((region: any) => ({
-                  label: region.nameUZB,
-                  value: region.id,
-                }))}
-              />
-            </Form.Item>
+          {/* Viloyat tanlash */}
+          <Form.Item
+            label="Viloyat"
+            name="regionId"
+            rules={[{ required: true, message: "Viloyatni tanlang!" }]}
+            className="w-full"
+          >
+            <Select
+              placeholder="Viloyatni tanlang"
+              className="h-[40px]!"
+              options={regionsData?.map((region: any) => ({
+                label: region.nameUZB,
+                value: region.id,
+              }))}
+            />
+          </Form.Item>
 
-            {/* tuman tanshlash */}
-            <Form.Item
-              label="Tuman"
-              name="tumanId"
-              rules={[{ required: true, message: "Tumandi tanlang" }]}
-            >
-              <Select
-                placeholder="Viloyatni tanlang"
-                options={districtsData?.map((region: any) => ({
-                  label: region.nameUZB,
-                  value: region.id,
-                }))}
-              />
-            </Form.Item>
+          {/* Tuman tanlash */}
+          <Form.Item
+            label="Tuman"
+            name="tumanId"
+            rules={[{ required: true, message: "Tumanni tanlang!" }]}
+            className="w-full"
+          >
+            <Select
+              placeholder="Tumanni tanlang"
+              className="h-[40px]!"
+              options={districtsData?.map((region: any) => ({
+                label: region.nameUZB,
+                value: region.id,
+              }))}
+            />
+          </Form.Item>
 
-            {/* Pochta nomi */}
-            <Form.Item
-              label="Pochta Nomi"
-              name="postName"
-              rules={[{ required: true, message: "Pochta nomini kiriting!" }]}
-            >
-              <Input type="text" placeholder="Pochta Nomi" />
-            </Form.Item>
-            {/* Pochta filiali nomi */}
-            <Form.Item
-              label="Pochta filiali nomi"
-              name="postFilialName"
-              rules={[
-                { required: true, message: "Pochta filial nomini kiriting!" },
-              ]}
-            >
-              <Input type="text" placeholder="Pochta filiali nomi" />
-            </Form.Item>
-            {/* Ko'cha nomi (UZB) */}
-            <Form.Item
-              label="Ko'cha nomi (UZB)"
-              name="streetUZB"
-              rules={[{ required: true, message: "Ko'cha nomini kiriting!" }]}
-            >
-              <Input type="text" placeholder="Ko'cha nomi (UZB)" />
-            </Form.Item>
-            {/* Ko'cha nomi (RUS) */}
-            <Form.Item
-              label="Ko'cha nomi (RUS)"
-              name="streetRUS"
-              rules={[{ required: true, message: "Ko'cha nomini kiriting!" }]}
-            >
-              <Input type="text" placeholder="Ko'cha nomi (RUS)" />
-            </Form.Item>
-            {/* Uy raqami */}
-            <Form.Item
-              label="Uy raqami"
-              name="houseNumber"
-              rules={[{ required: true, message: "Uy raqamini kiriting!" }]}
-            >
-              <Input type="text" placeholder="Uy raqami" />
-            </Form.Item>
-            {/* Info (UZB) */}
-            <Form.Item
-              label="Info (UZB)"
-              name="descriptionUZB"
-              rules={[{ required: true, message: "Info (UZB) kiriting!" }]}
-            >
-              <Input.TextArea
-                placeholder="Info (UZB)"
-                rows={3}
-                maxLength={500}
-              />
-            </Form.Item>
-            {/* Info (RUS) */}
-            <Form.Item
-              label="Info (RUS)"
-              name="descriptionRUS"
-              rules={[{ required: true, message: "Info (RUS) kiriting!" }]}
-            >
-              <Input.TextArea
-                placeholder="Info (RUS)"
-                rows={3}
-                maxLength={500}
-              />
-            </Form.Item>
-            <Form.Item name="id" hidden>
-              <Input type="hidden" />
-            </Form.Item>
+          {/* Pochta Nomi */}
+          <Form.Item
+            label="Pochta Nomi"
+            name="postName"
+            rules={[{ required: true, message: "Pochta nomini kiriting!" }]}
+          >
+            <Input placeholder="Pochta Nomi" className="h-[40px]" />
+          </Form.Item>
 
-            {/* Form submit button */}
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="w-full">
-                {isEditing ? "Saqlash" : "Qo'shish"}
-              </Button>
-            </Form.Item>
-          </div>
+          {/* Pochta Filial Nomi */}
+          <Form.Item
+            label="Pochta filiali nomi"
+            name="postFilialName"
+            rules={[
+              { required: true, message: "Pochta filial nomini kiriting!" },
+            ]}
+          >
+            <Input placeholder="Pochta filiali nomi" className="h-[40px]" />
+          </Form.Item>
+
+          {/* Ko‘cha nomi (UZB) */}
+          <Form.Item
+            label="Ko'cha nomi (UZB)"
+            name="streetUZB"
+            rules={[{ required: true, message: "Ko'cha nomini kiriting!" }]}
+          >
+            <Input placeholder="Ko'cha nomi (UZB)" className="h-[40px]" />
+          </Form.Item>
+
+          {/* Ko‘cha nomi (RUS) */}
+          <Form.Item
+            label="Ko'cha nomi (RUS)"
+            name="streetRUS"
+            rules={[{ required: true, message: "Ko'cha nomini kiriting!" }]}
+          >
+            <Input placeholder="Ko'cha nomi (RUS)" className="h-[40px]" />
+          </Form.Item>
+
+          {/* Uy raqami */}
+          <Form.Item
+            label="Uy raqami"
+            name="houseNumber"
+            rules={[{ required: true, message: "Uy raqamini kiriting!" }]}
+          >
+            <Input placeholder="Uy raqami" className="h-[40px]" />
+          </Form.Item>
+
+          {/* Info (UZB) */}
+          <Form.Item
+            label="Info (UZB)"
+            name="descriptionUZB"
+            rules={[{ required: true, message: "Info (UZB) kiriting!" }]}
+            className=""
+          >
+            <Input
+              placeholder="Info (UZB)"
+              maxLength={500}
+              className="w-full h-[40px]"
+            />
+          </Form.Item>
+
+          {/* Info (RUS) */}
+          <Form.Item
+            label="Info (RUS)"
+            name="descriptionRUS"
+            rules={[{ required: true, message: "Info (RUS) kiriting!" }]}
+            className=""
+          >
+            <Input
+              placeholder="Info (RUS)"
+              maxLength={500}
+              className="w-full h-[40px]"
+            />
+          </Form.Item>
+
+          <Form.Item name="id" hidden>
+            <Input type="hidden" />
+          </Form.Item>
+
+          {/* Submit tugmasi */}
+          <Form.Item className="w-full">
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full h-[40px]! font-semibold"
+            >
+              Qo'shish
+            </Button>
+          </Form.Item>
         </Form>
-      </Modal>
+      </div>
+
       <Table
+        title={() => (
+          <h2 className="text-xl font-bold uppercase">
+            Pochat Filial ro'yxati
+          </h2>
+        )}
         columns={columns}
-        dataSource={data}
+        dataSource={addPost}
         rowKey={(record) => record.id.toString()}
         loading={isLoading}
-        // pagination={{
-        //   pageSize: 10,
-        //   showSizeChanger: false,
-        // }}
         pagination={false}
         scroll={{ x: "max-content" }}
         bordered={true}
-        title={() => (
-          <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold m-0">Pochta filiallari</h2>
+        className="mt-10"
+      />
+      {/* edit uchun modal */}
+      <Modal
+        title="Pochta filialini qo'shish"
+        open={isModalOpen}
+        onCancel={handleCancel}
+        width={600}
+        footer={null}
+        maskClosable={false}
+      >
+        {/* Modal ichidagi form */}
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={(values) =>
+            isEditing
+              ? handleEditPostFilial(values)
+              : handleAddPostFilial(values)
+          }
+          initialValues={{
+            regionId: null,
+            tumanId: null,
+            postName: "",
+            postFilialName: "",
+            streetUZB: "",
+            streetRUS: "",
+            houseNumber: "",
+            descriptionUZB: "",
+            descriptionRUS: "",
+          }}
+          className="grid grid-cols-1 gap-4"
+        >
+          {/* Viloyat tanlash */}
+          <Form.Item
+            label="Viloyat"
+            name="regionId"
+            rules={[{ required: true, message: "Viloyatni tanlang!" }]}
+          >
+            <Select
+              placeholder="Viloyatni tanlang"
+              className="w-full"
+              options={regionsData?.map((region: any) => ({
+                label: region.nameUZB,
+                value: region.id,
+              }))}
+            />
+          </Form.Item>
+
+          {/* Tuman tanlash */}
+          <Form.Item
+            label="Tuman"
+            name="tumanId"
+            rules={[{ required: true, message: "Tumanni tanlang!" }]}
+          >
+            <Select
+              placeholder="Tumanni tanlang"
+              className="w-full"
+              options={districtsData?.map((region: any) => ({
+                label: region.nameUZB,
+                value: region.id,
+              }))}
+            />
+          </Form.Item>
+
+          {/* Pochta Nomi */}
+          <Form.Item
+            label="Pochta Nomi"
+            name="postName"
+            rules={[{ required: true, message: "Pochta nomini kiriting!" }]}
+          >
+            <Input placeholder="Pochta Nomi" className="h-[40px]" />
+          </Form.Item>
+
+          {/* Pochta Filial Nomi */}
+          <Form.Item
+            label="Pochta filiali nomi"
+            name="postFilialName"
+            rules={[
+              { required: true, message: "Pochta filial nomini kiriting!" },
+            ]}
+          >
+            <Input placeholder="Pochta filiali nomi" className="h-[40px]" />
+          </Form.Item>
+          {/* Ko‘cha nomi (UZB) */}
+          <Form.Item
+            label="Ko'cha nomi (UZB)"
+            name="streetUZB"
+            rules={[{ required: true, message: "Ko'cha nomini kiriting!" }]}
+          >
+            <Input placeholder="Ko'cha nomi (UZB)" className="h-[40px]" />
+          </Form.Item>
+          {/* Ko‘cha nomi (RUS) */}
+          <Form.Item
+            label="Ko'cha nomi (RUS)"
+            name="streetRUS"
+            rules={[{ required: true, message: "Ko'cha nomini kiriting!" }]}
+          >
+            <Input placeholder="Ko'cha nomi (RUS)" className="h-[40px]" />
+          </Form.Item>
+          {/* Uy raqami */}
+          <Form.Item
+            label="Uy raqami"
+            name="houseNumber"
+            rules={[{ required: true, message: "Uy raqamini kiriting!" }]}
+          >
+            <Input placeholder="Uy raqami" className="h-[40px]" />
+          </Form.Item>
+          {/* Info (UZB) */}
+          <Form.Item
+            label="Info (UZB)"
+            name="descriptionUZB"
+            rules={[{ required: true, message: "Info (UZB) kiriting!" }]}
+          >
+            <Input.TextArea
+              placeholder="Info (UZB)"
+              rows={3}
+              maxLength={500}
+              className="resize-none"
+            />
+          </Form.Item>
+          {/* Info (RUS) */}
+          <Form.Item
+            label="Info (RUS)"
+            name="descriptionRUS"
+            rules={[{ required: true, message: "Info (RUS) kiriting!" }]}
+          >
+            <Input.TextArea
+              placeholder="Info (RUS)"
+              rows={3}
+              maxLength={500}
+              className="resize-none"
+            />
+          </Form.Item>
+          <Form.Item name="id" hidden>
+            <Input type="hidden" />
+          </Form.Item>
+          {/* Submit tugmasi */}
+          <Form.Item>
             <Button
               type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                showModal();
-              }}
+              htmlType="submit"
+              className="w-full h-[45px] font-semibold"
             >
-              Qo‘shish
+              Saqlash
             </Button>
-          </div>
-        )}
-      />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

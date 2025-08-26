@@ -303,8 +303,8 @@ const Admins: React.FC = () => {
         columns={columns}
         dataSource={data}
         loading={isLoading}
+        pagination={false}
         bordered
-        pagination={{ pageSize: 10 }}
       />
     </div>
   );

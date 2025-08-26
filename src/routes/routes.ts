@@ -57,4 +57,8 @@ export const routes = [
     path: "review",
     element: React.lazy(() => import("../pages/review/review")),
   },
+  {
+    path: "today-users",
+    element: React.lazy(() => import("../pages/users/today-users")),
+  },
 ];

@@ -1,5 +1,5 @@
-import { Table, Tooltip, Button, Modal, Popconfirm } from "antd";
-import { EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Table, Tooltip, Button, Popconfirm } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
 import { endpoints } from "../../configs/endpoints";
 import { useGetList } from "../../services/query/useGetList";
 import type { UserType } from "../../types/user-type";
@@ -8,35 +8,25 @@ import { useDeleteById } from "../../services/mutation/useDeleteById";
 import { toast } from "react-toastify";
 import { GoDownload } from "react-icons/go";
 import { useState } from "react";
-import { UserAddOutlined } from "@ant-design/icons";
 import { CiSearch } from "react-icons/ci";
 import Highlighter from "react-highlight-words";
+import { SettingOutlined } from "@ant-design/icons";
 
 const Users = () => {
   const navigate = useNavigate();
-  const [isTodayModalOpen, setIsTodayModalOpen] = useState(false);
   const [filteredData, setFilteredData] = useState<UserType[] | null>();
-  const [searchPhone, setSearchPhone] = useState(""); // <-- Bu string
+  const [searchPhone, setSearchPhone] = useState("");
 
   const { data, isLoading, refetch } = useGetList<UserType[]>({
     endpoint: endpoints.users.getAll,
   });
 
-  console.log("user data", data);
-
-  // delete user function
   const { mutate } = useDeleteById({
     endpoint: endpoints.users.userDelete,
     queryKey: "usersDelete",
   });
 
-  //  bugingi sanada ro'yxatdan o'tgan mijozlarni olish
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD format
-  const todayUser = data?.filter((user) => {
-    return user.createdAt.slice(0, 10) === today;
-  });
-
-  // qidiruv boyyicha filtirlash
+  // qidiruv bo‘yicha filtrlash
   const handleSearch = (value: string) => {
     setSearchPhone(value);
     if (value.trim() === "") {
@@ -55,7 +45,6 @@ const Users = () => {
       { id: Number(id) },
       {
         onSuccess: () => {
-          console.log("User deleted successfully");
           toast.success("Mijoz muvaffaqiyatli o'chirildi.", {
             autoClose: 1500,
           });
@@ -63,6 +52,10 @@ const Users = () => {
         },
         onError: (error) => {
           console.error("Error deleting user:", error);
+          toast.error("Xatolik yuz berdi. Mijozni o'chirib bo'lmadi.", {
+            autoClose: 1500,
+          });
+          refetch();
         },
       }
     );
@@ -83,84 +76,16 @@ const Users = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          {/* Bugungi mijozlar  */}
+          {/* Bugungi mijozlar sahifasiga o'tish */}
           <Button
             type="primary"
-            icon={<UserAddOutlined />}
-            onClick={() => setIsTodayModalOpen(true)}
+            onClick={() => navigate("/admin/today-users")}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-md shadow"
           >
             Bugungi mijozlar
           </Button>
-          {/* mijozlar royhati */}
-          <Modal
-            title={
-              <div className="text-lg font-semibold text-slate-800">
-                Bugungi ro'yxatdan o'tgan mijozlar
-                <span>
-                  {todayUser?.length ? ` (${todayUser.length} ta)` : " (0 ta)"}
-                </span>
-              </div>
-            }
-            open={isTodayModalOpen}
-            onCancel={() => setIsTodayModalOpen(false)}
-            footer={null}
-            centered
-            className="rounded-xl"
-          >
-            {todayUser?.length ? (
-              <ul className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-                {todayUser.map((user, index) => (
-                  <li
-                    key={user.id}
-                    className="bg-gray-100 hover:bg-gray-200 transition-all duration-200 p-3 rounded-lg flex items-center justify-between shadow-sm"
-                  >
-                    <div className="text-sm text-gray-800">
-                      <span className="font-semibold text-base mr-1">
-                        {index + 1}.
-                      </span>
-                      <span className="font-medium">{user.fullName}</span>{" "}
-                      <span className="text-gray-500">
-                        | {user.phoneNumber}
-                      </span>
-                    </div>
 
-                    <div className="flex gap-2">
-                      <Tooltip title="User haqida malumot">
-                        <Button
-                          shape="circle"
-                          icon={<EyeOutlined />}
-                          size="middle"
-                          className="bg-blue-500 hover:bg-blue-600 text-white border-none"
-                          onClick={() => {
-                            setIsTodayModalOpen(false);
-                            navigate(`/admin/user-detail/${user.id}`);
-                          }}
-                        />
-                      </Tooltip>
-
-                      <Tooltip title="O'chirish">
-                        <Button
-                          shape="circle"
-                          danger
-                          icon={<DeleteOutlined />}
-                          size="middle"
-                          className="bg-red-500 hover:bg-red-600 text-white border-none"
-                          onClick={() => handleDelete(user.id)}
-                        />
-                      </Tooltip>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="text-center py-6 text-gray-500 text-sm">
-                Bugun hech qanday foydalanuvchi ro'yxatdan o'tmagan.
-              </div>
-            )}
-          </Modal>
-
-          {/* Download button */}
+          {/* Yuklab olish */}
           <Button
             type="primary"
             icon={<GoDownload size={20} />}
@@ -186,8 +111,11 @@ const Users = () => {
           rowKey={(record) => record.id}
           bordered
           pagination={{
-            pageSize: 10,
-            showSizeChanger: false,
+            position: ["bottomCenter"],
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "20", "50", "100"],
+            defaultPageSize: 10,
+            showQuickJumper: true,
           }}
           scroll={{ x: "max-content" }}
           columns={[
@@ -204,7 +132,7 @@ const Users = () => {
               render: (_text: string, record: UserType) => (
                 <span
                   onClick={() => navigate(`/admin/user-detail/${record.id}`)}
-                  className="font-medium text-slate-700 cursor-pointer transition duration-200 hover:text-blue-600 hover:underline active:text-blue-800"
+                  className="font-medium text-slate-700 cursor-pointer hover:text-blue-600 hover:underline"
                 >
                   {_text}
                 </span>
@@ -237,7 +165,7 @@ const Users = () => {
                     />
                     <CiSearch
                       size={18}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
                     />
                   </div>
                 </div>
@@ -264,9 +192,11 @@ const Users = () => {
             {
               title: "Status",
               dataIndex: ["status", "statusName"],
-              key: "saleSum",
-              render: (saleSum: string) => (
-                <span className="text-green-600 font-semibold">{saleSum}</span>
+              key: "status",
+              render: (statusName: string) => (
+                <span className="text-green-600 font-semibold">
+                  {statusName}
+                </span>
               ),
             },
             {
@@ -277,24 +207,21 @@ const Users = () => {
                 <span className="text-gray-600">{saleSum || 0} so'm</span>
               ),
             },
+
             {
-              title: "Harakatlar",
+              title: <SettingOutlined />,
               key: "actions",
-              width: 100,
+              width: "0",
+              align: "center",
               render: (_text, record) => (
                 <Tooltip title="O'chirish">
                   <Popconfirm
-                    title="Haqiqatan ham o‘chirmoqchimisiz?"
+                    title="O'chirishni tasdiqlaysizmi?"
                     onConfirm={() => handleDelete(record.id)}
                     okText="Ha"
                     cancelText="Yo'q"
                   >
-                    <Button
-                      shape="circle"
-                      danger
-                      icon={<DeleteOutlined />}
-                      size="small"
-                    />
+                    <Button shape="circle" danger icon={<DeleteOutlined />} />
                   </Popconfirm>
                 </Tooltip>
               ),

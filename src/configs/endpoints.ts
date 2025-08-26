@@ -134,4 +134,8 @@ export const endpoints = {
     reviewDelete: "/api/review/deleteReview/",
     reviewModerate: "/api/review/moderateReview",
   },
+  payment: {
+    getAll: "/payment/getAllPayments",
+    getByDate: "/payment/by-date",
+  },
 };
