@@ -2,7 +2,7 @@ import React from "react";
 import { useGetList } from "../../services/query/useGetList";
 import type { NotificationsType } from "../../types/notifications-type";
 import { endpoints } from "../../configs/endpoints";
-import { Table, Tag, Image, Switch, Tooltip, Button } from "antd";
+import { Table, Tag, Image, Switch, Tooltip, Button, Popconfirm } from "antd";
 import { CiStar } from "react-icons/ci";
 import { AiOutlineDelete } from "react-icons/ai";
 import type { ColumnsType } from "antd/es/table";
@@ -11,10 +11,15 @@ import { toast } from "react-toastify";
 import { useUpdate } from "../../services/mutation/useUpdate";
 
 const Review: React.FC = () => {
+  const [activeTab, setActiveTab] = React.useState<
+    "all" | "approved" | "unapproved"
+  >("all");
   const { data, isLoading, refetch } = useGetList<NotificationsType[]>({
     endpoint: endpoints.review.reviewAll,
     // queryKey: endpoints.review.reviewDelete,
   });
+  console.log("Review data:", data);
+
   const { mutate } = useDeleteById({
     endpoint: endpoints.review.reviewDelete,
     queryKey: endpoints.review.reviewDelete,
@@ -26,6 +31,14 @@ const Review: React.FC = () => {
     queryKey: endpoints.review.reviewDelete,
   });
 
+  const filteredData = React.useMemo(() => {
+    if (activeTab === "approved") {
+      return data?.filter((item) => item.moderation === true);
+    } else if (activeTab === "unapproved") {
+      return data?.filter((item) => item.moderation === false);
+    }
+    return data;
+  }, [activeTab, data]);
   const checkedModerateReviews = (id: number, checked: boolean) => {
     moderateReviews(
       { data: { reviewId: id, moder: checked } },
@@ -47,6 +60,12 @@ const Review: React.FC = () => {
   };
 
   const columns: ColumnsType<NotificationsType> = [
+    {
+      width: "0",
+      title: "#",
+      dataIndex: "index",
+      render: (_: any, __: any, index: number) => index + 1,
+    },
     {
       title: "Rasm",
       dataIndex: "reviewImages",
@@ -139,8 +158,17 @@ const Review: React.FC = () => {
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
       defaultSortOrder: "descend",
       render: (date: string) => (
-        <Tag color="geekblue" className="text-xs font-medium">
-          {date?.slice(0, 10)}
+        <Tag color="geekblue" className="!text-xs !font-medium !py-2">
+          {new Intl.DateTimeFormat("uz-UZ", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }).format(new Date(date))}{" "}
+          {new Intl.DateTimeFormat("uz-UZ", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }).format(new Date(date))}
         </Tag>
       ),
     },
@@ -148,12 +176,14 @@ const Review: React.FC = () => {
       title: "Amallar",
       render: (_: any, record: NotificationsType) => (
         <Tooltip title="Oʻchirish">
-          <Button
-            onClick={() => handleDelete(record.id)}
-            danger
-            shape="circle"
-            icon={<AiOutlineDelete />}
-          />
+          <Popconfirm
+            title="O'chirishni tasdiqlaysizmi?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Ha"
+            cancelText="Yo'q"
+          >
+            <Button danger shape="circle" icon={<AiOutlineDelete />} />
+          </Popconfirm>
         </Tooltip>
       ),
     },
@@ -177,21 +207,63 @@ const Review: React.FC = () => {
   };
 
   return (
-    <div className=" bg-white rounded-md shadow-sm">
-      <h1 className="text-xl font-bold mb-4">🗨️ Foydalanuvchi Izohlari</h1>
-      {/* jami izohlari soni */}
-      <div className="mb-2">
-        <span className="text-gray-600">Jami izohlar: </span>
-        <span className="font-semibold text-blue-600">{data?.length || 0}</span>
+    <div className="rounded-md shadow-sm p-4">
+      <div className="mb-2 flex justify-between items-center">
+        <div>
+          <h1 className="text-xl font-bold mb-4">Foydalanuvchi Izohlari</h1>
+          {/* jami izohlari soni */}
+          <span className="text-gray-600">Jami izohlar: </span>
+          <span className="font-semibold text-blue-600">
+            {data?.length || 0}
+          </span>
+        </div>
+        <div className="flex gap-3">
+          <Button
+            className={`!rounded-lg !px-6 !py-3 text-base font-semibold shadow-md transition-all duration-300 ${
+              activeTab === "all"
+                ? "!bg-blue-600 !text-white hover:!bg-blue-700"
+                : "!bg-gray-200 !text-gray-700 hover:!bg-gray-300"
+            }`}
+            onClick={() => setActiveTab("all")}
+          >
+            Barchasi
+          </Button>
+          <Button
+            className={`!rounded-lg !px-6 !py-3 text-base font-semibold shadow-md transition-all duration-300 ${
+              activeTab === "approved"
+                ? "!bg-blue-600 !text-white hover:!bg-blue-700"
+                : "!bg-gray-200 !text-gray-700 hover:!bg-gray-300"
+            }`}
+            onClick={() => setActiveTab("approved")}
+          >
+            Tasdiqlangan
+          </Button>
+          <Button
+            className={`!rounded-lg !px-6 !py-3 text-base font-semibold shadow-md transition-all duration-300 ${
+              activeTab === "unapproved"
+                ? "!bg-blue-600 !text-white hover:!bg-blue-700"
+                : "!bg-gray-200 !text-gray-700 hover:!bg-gray-300"
+            }`}
+            onClick={() => setActiveTab("unapproved")}
+          >
+            Tasdiqlanmagan
+          </Button>
+        </div>
       </div>
 
       <Table
-        dataSource={data || []}
+        dataSource={filteredData}
         columns={columns}
         loading={isLoading}
         rowKey="id"
         bordered
-        pagination={{ pageSize: 10 }}
+        pagination={{
+          position: ["bottomCenter"],
+          showSizeChanger: true,
+          pageSizeOptions: ["10", "20", "50", "100"],
+          defaultPageSize: 10,
+          showQuickJumper: true,
+        }}
         scroll={{ x: "max-content" }}
       />
     </div>

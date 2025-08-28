@@ -34,4 +34,5 @@ export interface NotificationsType {
   };
   rating?: number;
   active?: boolean;
+  moderation?: boolean;
 }
