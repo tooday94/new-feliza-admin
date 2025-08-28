@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Table, Button, Tooltip, Popconfirm, Tag, Modal } from "antd";
+import { Table, Button, Tooltip, Popconfirm, Tag, Modal, Popover } from "antd";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useGetList } from "../../services/query/useGetList";
 import type { AdminType } from "../../types/admin-type";
@@ -9,6 +9,7 @@ import { Form, Input, DatePicker, Select, Switch } from "antd";
 import { toast } from "react-toastify";
 import type { RoleType } from "../../types/role-type";
 import { useUpdate } from "../../services/mutation/useUpdate";
+import { useDeleteById } from "../../services/mutation/useDeleteById";
 
 const Admins: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,12 +17,18 @@ const Admins: React.FC = () => {
   const { data, isLoading, refetch } = useGetList<AdminType[]>({
     endpoint: endpoints.admins.getAll,
   });
+  console.log("Admins data:", data);
+
   const { mutate } = useCreate({
     endpoint: endpoints.admins.post,
     queryKey: endpoints.admins.getAll,
   });
   const { mutate: update } = useUpdate({
     endpoint: endpoints.admins.put,
+    queryKey: endpoints.admins.getAll,
+  });
+  const { mutate: deleteAdmin } = useDeleteById({
+    endpoint: endpoints.admins.delete,
     queryKey: endpoints.admins.getAll,
   });
 
@@ -43,7 +50,25 @@ const Admins: React.FC = () => {
     });
     setIsModalOpen(true);
   };
-
+  const handleDelete = (id: number | string) => {
+    deleteAdmin(
+      { id: id },
+      {
+        onSuccess: () => {
+          toast.success("Admin muvaffaqiyatli o‘chirildi!", {
+            autoClose: 1500,
+          });
+          refetch();
+        },
+        onError: () => {
+          toast.error("Xatolik yuz berdi. O'chirish amalga oshmadi.", {
+            autoClose: 1500,
+          });
+          refetch();
+        },
+      }
+    );
+  };
   const onFinish = (values: any) => {
     refetch();
     const formatted: any = {
@@ -122,12 +147,12 @@ const Admins: React.FC = () => {
       dataIndex: "phoneNumber",
       key: "phoneNumber",
     },
-    {
-      title: "Birth Date",
-      dataIndex: "birthDate",
-      key: "birthDate".slice(0, 10),
-      render: (text: string) => text?.slice(0, 10),
-    },
+    // {
+    //   title: "Birth Date",
+    //   dataIndex: "birthDate",
+    //   key: "birthDate".slice(0, 10),
+    //   render: (text: string) => text?.slice(0, 10),
+    // },
     {
       title: "Roles",
       dataIndex: "roles",
@@ -169,6 +194,53 @@ const Admins: React.FC = () => {
       },
     },
     {
+      title: "Status",
+      dataIndex: "enabled",
+      key: "enabled",
+      render: (enabled: boolean, record: AdminType) => {
+        const content = (
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span>Holatni o'zgartirish</span>
+            <Switch
+              checked={enabled}
+              onChange={(checked) => {
+                update(
+                  { id: record.id, data: { ...record, active: checked } },
+                  {
+                    onSuccess: () => {
+                      toast.success("Status muvaffaqiyatli o‘zgartirildi!", {
+                        autoClose: 1500,
+                      });
+                    },
+                    onError: () => {
+                      toast.error("Xatolik yuz berdi.", {
+                        autoClose: 1500,
+                      });
+                    },
+                  }
+                );
+              }}
+            />
+          </div>
+        );
+
+        return (
+          <Popover
+            content={content}
+            title="Statusni tahrirlash"
+            trigger="click"
+          >
+            <Tag
+              className="!cursor-pointer !px-4 !py-1"
+              color={enabled ? "green" : "red"}
+            >
+              {enabled ? "Active" : "Noactive"}
+            </Tag>
+          </Popover>
+        );
+      },
+    },
+    {
       title: "Actions",
       key: "actions",
       render: (_: any, record: AdminType) => (
@@ -184,6 +256,7 @@ const Admins: React.FC = () => {
             title="Delete qilmoqchimisiz?"
             okText="Ha"
             cancelText="Yo'q"
+            onConfirm={() => handleDelete(record.id)}
           >
             <Tooltip>
               <Button icon={<DeleteOutlined />} danger />
