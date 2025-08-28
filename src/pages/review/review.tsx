@@ -217,32 +217,32 @@ const Review: React.FC = () => {
             {data?.length || 0}
           </span>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           <Button
-            className={`!rounded-lg !px-6 !py-3 text-base font-semibold shadow-md transition-all duration-300 ${
+            className={`!rounded-sm !px-10 !py-5 text-sm md:text-base font-semibold shadow-sm transition-all duration-300 ${
               activeTab === "all"
-                ? "!bg-blue-600 !text-white hover:!bg-blue-700"
-                : "!bg-gray-200 !text-gray-700 hover:!bg-gray-300"
+                ? "!bg-black !text-white shadow-md scale-105"
+                : "!bg-gray-100 !text-gray-600 hover:!bg-gray-200"
             }`}
             onClick={() => setActiveTab("all")}
           >
             Barchasi
           </Button>
           <Button
-            className={`!rounded-lg !px-6 !py-3 text-base font-semibold shadow-md transition-all duration-300 ${
+            className={`!rounded-sm !px-10 !py-5 text-sm md:text-base font-semibold shadow-sm transition-all duration-300 ${
               activeTab === "approved"
-                ? "!bg-blue-600 !text-white hover:!bg-blue-700"
-                : "!bg-gray-200 !text-gray-700 hover:!bg-gray-300"
+                ? "!bg-black !text-white shadow-md scale-105"
+                : "!bg-gray-100 !text-gray-600 hover:!bg-gray-200"
             }`}
             onClick={() => setActiveTab("approved")}
           >
             Tasdiqlangan
           </Button>
           <Button
-            className={`!rounded-lg !px-6 !py-3 text-base font-semibold shadow-md transition-all duration-300 ${
+            className={`!rounded-sm !px-10 !py-5 text-sm md:text-base font-semibold shadow-sm transition-all duration-300 ${
               activeTab === "unapproved"
-                ? "!bg-blue-600 !text-white hover:!bg-blue-700"
-                : "!bg-gray-200 !text-gray-700 hover:!bg-gray-300"
+                ? "!bg-black !text-white shadow-md scale-105"
+                : "!bg-gray-100 !text-gray-600 hover:!bg-gray-200"
             }`}
             onClick={() => setActiveTab("unapproved")}
           >
