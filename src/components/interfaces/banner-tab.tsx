@@ -11,6 +11,8 @@ import {
   Upload,
   Input,
   Flex,
+  TreeSelect,
+  Tag,
 } from "antd";
 import {
   DeleteOutlined,
@@ -41,6 +43,8 @@ const BannerTab = () => {
   const [mobilePreview, setMobilePreview] = useState<any[]>([]);
   const [desktopPreview, setDesktopPreview] = useState<any[]>([]);
 
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
   const { data: carouselList, isLoading } = useGetList<KaruselItemType[]>({
     endpoint: endpoints.karusel.getAll,
   });
@@ -59,10 +63,36 @@ const BannerTab = () => {
     queryKey: endpoints.karusel.getAll,
   });
 
-  const { data: categoryList } = useGetList<CategoriesAllType[]>({
-    endpoint: endpoints.category.getParent,
-    enabled: bannerType === "category_id",
+  const { data: allParentCategory, isLoading: allParentCategoryLoad } =
+    useGetList<CategoriesAllType[]>({
+      endpoint: endpoints.category.getParent,
+    });
+
+  const { data: allSubCategory, isLoading: allSubCategoryLoad } = useGetList<
+    CategoriesAllType[]
+  >({
+    endpoint: endpoints.category.getSub,
+    // enabled: parentCategorySelected ? true : false,
   });
+
+  const buildTreeData = () => {
+    return allParentCategory?.map((parent) => {
+      const children = allSubCategory
+        ?.filter((sub) => sub.parentCategoryUZ === parent.nameUZB)
+        .map((sub) => ({
+          title: sub.nameUZB,
+          value: sub.id.toString(),
+          className: "text-lg",
+        }));
+
+      return {
+        className: "text-xl",
+        title: parent.nameUZB,
+        value: parent.id.toString(),
+        children: children?.length ? children : undefined,
+      };
+    });
+  };
 
   const { data: productList, refetch: refetchProduct } = useGetById<Product>({
     endpoint: endpoints.products.getById,
@@ -81,6 +111,7 @@ const BannerTab = () => {
 
   const onFinish = (values: any) => {
     const formData = new FormData();
+    console.log(values);
 
     formData.append(
       "karuselDto",
@@ -264,19 +295,50 @@ const BannerTab = () => {
                   ]}
                 >
                   {bannerType === "category_id" && (
-                    <Select
+                    <TreeSelect
+                      treeLine
+                      treeIcon
+                      multiple={false}
+                      allowClear
+                      loading={allParentCategoryLoad || allSubCategoryLoad}
+                      showSearch={true}
+                      placeholder="Kategoriyalar tanlang"
                       size="large"
-                      className="min-w-full !w-full md:min-w-sm"
-                      placeholder="Kategoriya tanlang"
-                      showSearch
-                      optionFilterProp="label"
-                      filterSort={(a, b) =>
-                        (a?.label ?? "").localeCompare(b?.label ?? "")
+                      treeData={buildTreeData()}
+                      value={selectedCategories}
+                      filterTreeNode={(input, node) =>
+                        (node.title as string)
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
                       }
-                      options={categoryList?.map((item) => ({
-                        label: item.nameUZB,
-                        value: item.id,
-                      }))}
+                      onChange={(value: string[]) => {
+                        setSelectedCategories(value);
+                      }}
+                      tagRender={(props) => {
+                        const flat = buildTreeData()?.flatMap((item) => [
+                          { ...item, children: item.children ?? undefined },
+                          ...(item.children
+                            ? item.children.map((child) => ({
+                                ...child,
+                                children: undefined,
+                              }))
+                            : []),
+                        ]);
+                        const isParent =
+                          flat?.find((n) => n.value === props.value)
+                            ?.children !== undefined;
+
+                        return (
+                          <Tag
+                            color={isParent ? "green" : "blue"}
+                            closable={props.closable}
+                            onClose={props.onClose}
+                            className="!px-3 !py-2 !text-base"
+                          >
+                            {props.label}
+                          </Tag>
+                        );
+                      }}
                     />
                   )}
 
@@ -348,11 +410,17 @@ const BannerTab = () => {
                     className="mb-4 max-w-md mx-auto"
                     title={`Mahsulot: ${productList.nameUZB}`}
                     cover={
-                      <Image
-                        src={productList.productImages?.[0]?.url}
-                        alt="Product"
-                        style={{ height: 200, objectFit: "contain" }}
-                      />
+                      <Image.PreviewGroup
+                        items={productList.productImages?.map(
+                          (item) => item.url
+                        )}
+                      >
+                        <Image
+                          src={productList.productImages?.[0]?.url}
+                          alt="Product"
+                          style={{ height: 200, objectFit: "contain" }}
+                        />
+                      </Image.PreviewGroup>
                     }
                   />
                 )}
@@ -362,11 +430,15 @@ const BannerTab = () => {
                     className="mb-4 max-w-md mx-auto"
                     title={`Look ID: ${lookList?.id}`}
                     cover={
-                      <Image
-                        src={lookList.images?.[0]?.url}
-                        alt="Look"
-                        style={{ height: 200, objectFit: "contain" }}
-                      />
+                      <Image.PreviewGroup
+                        items={lookList.images?.map((item) => item.url)}
+                      >
+                        <Image
+                          src={lookList.images?.[0]?.url}
+                          alt="Look"
+                          style={{ height: 200, objectFit: "contain" }}
+                        />
+                      </Image.PreviewGroup>
                     }
                   />
                 )}

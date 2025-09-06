@@ -1,5 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 const FELIZA_API = "https://felizabackend.uz";
 
@@ -27,8 +28,9 @@ request.interceptors.request.use((config) => {
 request.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 || 403) {
       Cookies.remove("FELIZA-TOKEN");
+      toast.error("Sessiya tugagan, qaytadan login qiling!");
       window.history.pushState(null, "", "/");
     }
     console.error("Error request:", error);

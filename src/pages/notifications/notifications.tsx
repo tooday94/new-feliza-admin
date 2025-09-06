@@ -25,6 +25,7 @@ import type { UserType } from "../../types/user-type";
 import { useNavigate } from "react-router-dom";
 
 const Notifications = () => {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   const screens = Grid.useBreakpoint();
   const [open, setOpen] = useState(false);
@@ -80,7 +81,11 @@ const Notifications = () => {
     const formData = new FormData();
     formData.append(
       "addNotificationDto",
-      JSON.stringify({ ...values, read: false })
+      JSON.stringify({
+        ...values,
+        read: false,
+        reserveId: values?.reserveId ? values.reserveId.toString() : "",
+      })
     );
     formData.append("image", file || "");
 
@@ -101,7 +106,7 @@ const Notifications = () => {
           {
             title: values.title,
             message: values.message,
-            link: values.reserveId,
+            link: values?.reserveId ? values.reserveId.toString() : "",
             type: values.type,
             read: false,
             customerId: user?.id,
@@ -220,9 +225,15 @@ const Notifications = () => {
         open={open}
         onCancel={() => {
           setOpen(false);
+          form.resetFields();
         }}
       >
-        <Form layout="vertical" onFinish={createAll}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={createAll}
+          initialValues={{ read: false, type: "text" }}
+        >
           <Form.Item
             name={"title"}
             label="Sarlavha"
@@ -250,11 +261,13 @@ const Notifications = () => {
 
           {openType != "user" && (
             <Form.Item
-              name={"img"}
+              // name={"img"}
               label="Rasm yuklash"
               rules={[{ required: true, message: "Iltimos Rasm tanlang!" }]}
             >
               <Upload
+                listType="picture"
+                multiple={false}
                 beforeUpload={(file) => {
                   setFile(file);
                   return false;
@@ -269,7 +282,7 @@ const Notifications = () => {
 
           <Form.Item name={"type"} label={"Turni Tanlash"}>
             <Select
-              defaultValue={"text"}
+              // defaultValue={"text"}
               options={[
                 { value: "text", label: "Text" },
                 { value: "sale", label: "Sale" },
@@ -309,6 +322,7 @@ const Notifications = () => {
           >
             <Input.TextArea placeholder="Xabar kiriting!" />
           </Form.Item>
+
           <Form.Item className="!mb-0 !mt-10">
             <Button
               size="large"

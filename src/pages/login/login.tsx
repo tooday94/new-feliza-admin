@@ -36,11 +36,17 @@ const Login: React.FC = () => {
   const onFinish = (values: AuthRequest) => {
     mutate(values, {
       onSuccess: (data) => {
+        console.log(data);
+        
         Cookie.set("FELIZA-TOKEN", data.accessToken, {
           expires: 1,
           secure: true,
         });
         Cookie.set("FELIZA-CUSTOMER-ID", data.customerId, {
+          expires: 1,
+          secure: true,
+        });
+        Cookie.set("FELIZA-ROLE", data.customerId, {
           expires: 1,
           secure: true,
         });
