@@ -108,7 +108,7 @@ const UpdateProduct = () => {
     endpoint: endpoints.category.getSub,
   });
 
-  const { mutate: updateProduct } = useUpdate({
+  const { mutate: updateProduct, isPending: updateProductPending } = useUpdate({
     endpoint: endpoints.products.put,
     queryKey: endpoints.products.getAll,
   });
@@ -134,12 +134,13 @@ const UpdateProduct = () => {
 
   const ref = data?.referenceNumber;
   const [updateRefValue, setUpdateRefValue] = useState(ref);
-  const { mutate: updateProductRef } = useUpdate({
-    endpoint: endpoints.products.putByRefNumber,
-    queryKey: endpoints.products.getById,
-  });
+  const { mutate: updateProductRef, isPending: updateProductRefPending } =
+    useUpdate({
+      endpoint: endpoints.products.putByRefNumber,
+      queryKey: endpoints.products.getById,
+    });
 
-  const { mutate: updateStatus } = useCreate({
+  const { mutate: updateStatus, isPending: updateStatusPending } = useCreate({
     endpoint: "api/product/changeActive/" + id,
     queryKey: endpoints.products.getAll,
   });
@@ -190,7 +191,7 @@ const UpdateProduct = () => {
       <div className="grid grid-cols-3 md:!flex !justify-between gap-2">
         <Image.PreviewGroup>
           {data?.productImages.map((img) => (
-            <Image src={img.url} />
+            <Image key={img.id} src={img.url} />
           ))}
         </Image.PreviewGroup>
       </div>
@@ -222,6 +223,7 @@ const UpdateProduct = () => {
                 Mahsulot Statusi:
               </Typography.Title>
               <Switch
+                loading={updateStatusPending}
                 size="default"
                 style={{ color: "red" }}
                 className={`!text-primary ${data?.active ? "" : "!bg-red-500"}`}
@@ -242,6 +244,7 @@ const UpdateProduct = () => {
           />
 
           <Button
+            loading={updateProductRefPending}
             disabled={updateRefValue ? false : true}
             size="large"
             type="primary"
@@ -624,7 +627,7 @@ const UpdateProduct = () => {
               <Button
                 icon={<PlusOutlined />}
                 size="large"
-                className="mb-6"
+                className="my-6"
                 type="dashed"
                 onClick={() => add()}
               >
@@ -636,6 +639,7 @@ const UpdateProduct = () => {
 
         <Form.Item className="text-center">
           <Button
+            loading={updateProductPending}
             className="max-w-md"
             block
             htmlType="submit"

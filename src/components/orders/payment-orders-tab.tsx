@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useGetList } from "../../services/query/useGetList";
 import { Button, DatePicker, Flex, Table } from "antd";
-import { SettingFilled } from "@ant-design/icons";
 import { dateFormat } from "../../utils/formatDate";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -14,6 +13,8 @@ interface PaymentOrdersTabProps {
   payDate: string;
   paySum: number;
   transactionId: string;
+  customerFullName: string;
+  phoneNumber: string;
 }
 const PaymentOrdersTab = () => {
   const navigate = useNavigate();
@@ -77,7 +78,7 @@ const PaymentOrdersTab = () => {
           <p className="md:text-lg font-semibold">
             {selectedDate
               ? `To'lovlar soni: ${data?.length}`
-              : "Barcha to'lovlar" + " ( " + allPaymentData?.length + " )"}
+              : `Barcha to'lovlar ( ${allPaymentData?.length || 0} )`}
           </p>
           <Flex align="center" gap={12}>
             <Button
@@ -117,7 +118,7 @@ const PaymentOrdersTab = () => {
           defaultSortOrder: "descend",
         },
         {
-          width: "40%",
+          width: "20%",
           title: "To'lov Miqdori",
           dataIndex: "paySum",
           render: (sum) => (
@@ -128,32 +129,28 @@ const PaymentOrdersTab = () => {
         },
         {
           width: "20%",
-          title: "Status",
-          dataIndex: "cancelled",
-          render: (cancelled) => (
+          title: "Mijoz",
+          dataIndex: "customerFullName",
+          render: (cancelled, record) => (
             <div className="md:text-lg font-semibold">
-              <span className={cancelled ? "text-red-500" : "text-green-500"}>
-                {cancelled ? "Bekor qilingan" : "Amalga oshgan"}
-              </span>
+              <h1
+                title="Mijozni ko'rish"
+                onClick={() =>
+                  navigate("/admin/user-detail/" + record.customerId)
+                }
+                className="hover:underline cursor-pointer hover:text-blue-500 transition-all"
+              >
+                {cancelled}
+              </h1>
             </div>
           ),
         },
         {
           fixed: "right",
-          width: "9%",
+          width: "20%",
           align: "center",
-          title: <SettingFilled />,
-          dataIndex: "customerId",
-          render: (_, record) => (
-            <span
-              className="cursor-pointer text-blue-500 md:text-lg font-semibold hover:underline"
-              onClick={() => {
-                navigate(`/admin/user-detail/${record.customerId}`);
-              }}
-            >
-              Mijoz
-            </span>
-          ),
+          title: "Tel",
+          dataIndex: "phoneNumber",
         },
       ]}
       pagination={{

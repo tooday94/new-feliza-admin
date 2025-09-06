@@ -336,10 +336,9 @@ const Products = () => {
                   colorId: record.color?.id,
                   productSizeVariantDtoList: updatedVariants,
                 };
-                console.log(updatedData);
 
                 updateProduct(
-                  { data: updatedData, id: record?.id },
+                  { data: updatedData, id: popoverOpen },
                   {
                     onSuccess: () => {
                       setPopoverOpen("");
@@ -427,7 +426,9 @@ const Products = () => {
                     }
                   >
                     <span
-                      onClick={() => setPopoverOpen(record.id)}
+                      onClick={() => (
+                        setPopoverOpen(record.id), console.log(record.id)
+                      )}
                       className="border px-2 py-1 rounded cursor-pointer text-nowrap"
                       style={{
                         backgroundColor: record.productSizeVariantList.some(
