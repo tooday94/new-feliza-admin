@@ -29,7 +29,7 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { useGetList } from "../../services/query/useGetList";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   localIKPUNumbers,
   localMXIKNumbers,
@@ -172,6 +172,28 @@ const UpdateProduct = () => {
     }
   };
 
+  console.log(data);
+
+  useEffect(() => {
+    console.log("dadadada");
+
+    if (data) {
+      form.setFieldsValue({
+        ...data,
+        ikpuNumber: data.ikpunumber,
+        brandId: data.brand?.id,
+        colorId: data.color?.id,
+        categoryId: data.category?.map((c) => String(c.id)),
+        productSizeVariantDtoList:
+          data.productSizeVariantList?.map((item) => ({
+            size: String(item.size),
+            barCode: item.barCode,
+            quantity: item.quantity,
+          })) || [],
+      });
+    }
+  }, [data, form]);
+
   if (isLoading) {
     return <Spin />;
   }
@@ -286,6 +308,7 @@ const UpdateProduct = () => {
           }
           const payload = {
             ...values,
+            active: data?.active,
             productSizeVariantDtoList: values.productSizeVariantDtoList.map(
               (v: any) => ({
                 size: v.size,
@@ -301,6 +324,7 @@ const UpdateProduct = () => {
             {
               onSuccess: () => {
                 toast.success("Mahsulot o'zgartirildi");
+                refetch();
               },
               onError: () => {
                 toast.error("Mahsulot o'zgartirishda xatolik");

@@ -5,6 +5,7 @@ export interface Product {
   nameUZB: string;
   nameRUS: string;
   mxiknumber: string;
+  mxikNumber: string;
   ikpunumber: string;
   importPrice: number;
   descriptionUZB: string;
