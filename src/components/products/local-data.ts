@@ -26,8 +26,8 @@ export const localSizesData = [
       { className: "text-xl", title: "S-26", value: "S-26" },
       { className: "text-xl", title: "M-27", value: "M-27" },
       { className: "text-xl", title: "L-28", value: "L-28" },
-      { className: "text-xl", title: "XL-29", value: "XL298" },
-      { className: "text-xl", title: "XXL-30", value: "XX3050" },
+      { className: "text-xl", title: "XL-29", value: "XL-29" },
+      { className: "text-xl", title: "XXL-30", value: "XXL-30" },
     ],
   },
   {

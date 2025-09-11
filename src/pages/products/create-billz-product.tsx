@@ -32,7 +32,7 @@ import {
   localSizesData,
 } from "../../components/products/local-data";
 
-const CreateProduct = () => {
+const CreateBillzProduct = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -892,4 +892,4 @@ const CreateProduct = () => {
   );
 };
 
-export default CreateProduct;
+export default CreateBillzProduct;
