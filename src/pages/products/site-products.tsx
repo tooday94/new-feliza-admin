@@ -75,7 +75,7 @@ const SiteProducts = () => {
 
   const { data: searchedProducts, isLoading: searchedProductsLoad } =
     useGetList<Product[]>({
-      endpoint: endpoints.products.getByRefNumber + searchValue,
+      endpoint: "/api/product/getProductByRefNumAdmin/" + searchValue,
       enabled: searchValue.length > 0,
     });
 
@@ -502,28 +502,28 @@ const SiteProducts = () => {
 
                 console.log(updatedData);
 
-                // updateProduct(
-                //   { data: updatedData, id: record?.id },
-                //   {
-                //     onSuccess: () => {
-                //       setPopoverOpen("");
-                //       toast.success("Mahsulot barcodelari o'zgartirildi");
-                //       if (searchValue) {
-                //         queryClient.invalidateQueries({
-                //           queryKey: [
-                //             endpoints.products.getByRefNumber + searchValue,
-                //           ],
-                //         });
-                //       }
-                //     },
-                //     onError: () => {
-                //       toast.error(
-                //         "Mahsulot barcodelari o'zgartirishda xatolik",
-                //         { position: "top-center" }
-                //       );
-                //     },
-                //   }
-                // );
+                updateProduct(
+                  { data: updatedData, id: record?.id },
+                  {
+                    onSuccess: () => {
+                      setPopoverOpen("");
+                      toast.success("Mahsulot barcodelari o'zgartirildi");
+                      if (searchValue) {
+                        queryClient.invalidateQueries({
+                          queryKey: [
+                            endpoints.products.getByRefNumber + searchValue,
+                          ],
+                        });
+                      }
+                    },
+                    onError: () => {
+                      toast.error(
+                        "Mahsulot barcodelari o'zgartirishda xatolik",
+                        { position: "top-center" }
+                      );
+                    },
+                  }
+                );
               };
 
               return (

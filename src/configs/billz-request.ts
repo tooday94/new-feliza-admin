@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const BILLZ_API = " https://api-admin.billz.ai";
+const BILLZ_API = "https://api-admin.billz.ai";
 
 const billzRequest = axios.create({
   baseURL: BILLZ_API,

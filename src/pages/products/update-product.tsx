@@ -175,7 +175,7 @@ const UpdateProduct = () => {
   console.log(data);
 
   useEffect(() => {
-    console.log("dadadada");
+    // console.log("dadadada");
 
     if (data) {
       form.setFieldsValue({
@@ -189,6 +189,7 @@ const UpdateProduct = () => {
             size: String(item.size),
             barCode: item.barCode,
             quantity: item.quantity,
+            id: item.id,
           })) || [],
       });
     }
@@ -295,6 +296,7 @@ const UpdateProduct = () => {
               size: String(item.size),
               barCode: item.barCode,
               quantity: item.quantity,
+              id: item.id,
             })) || [],
         }}
         onFinish={(values) => {
@@ -314,6 +316,7 @@ const UpdateProduct = () => {
                 size: v.size,
                 barCode: v.barCode,
                 quantity: Number(v.quantity),
+                id: v.id ? v.id : 0,
               })
             ),
           };
