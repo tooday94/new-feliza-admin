@@ -76,6 +76,11 @@ const menuSections: MenuSection[] = [
         icon: <EyeOutlined />,
         label: "Sharhlar",
       },
+      {
+        key: "/admin/kassa",
+        icon: <ShoppingOutlined />,
+        label: "Kassa",
+      },
     ],
   },
 ];
