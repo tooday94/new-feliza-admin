@@ -28,7 +28,7 @@ request.interceptors.request.use((config) => {
 request.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 || 403) {
+    if (error.response?.status === 401) {
       Cookies.remove("FELIZA-TOKEN");
       toast.error("Sessiya tugagan, qaytadan login qiling!");
       window.history.pushState(null, "", "/");
