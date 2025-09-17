@@ -14,6 +14,10 @@ export const routes = [
     element: React.lazy(() => import("../pages/products/create-product")),
   },
   {
+    path: "create-billz-product",
+    element: React.lazy(() => import("../pages/products/create-billz-product")),
+  },
+  {
     path: "update-product/:id",
     element: React.lazy(() => import("../pages/products/update-product")),
   },

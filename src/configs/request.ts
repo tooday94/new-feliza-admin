@@ -28,14 +28,27 @@ request.interceptors.request.use((config) => {
 request.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      Cookies.remove("FELIZA-TOKEN");
-      toast.error("Sessiya tugagan, qaytadan login qiling!");
-      window.history.pushState(null, "", "/");
+    if (error.response) {
+      // Server javob qaytargan, lekin xato status
+      if (error.response.status === 401) {
+        Cookies.remove("FELIZA-TOKEN");
+        toast.error("Sessiya tugagan, qaytadan login qiling!");
+        window.history.pushState(null, "", "/");
+      } else {
+        toast.error(error.response.data?.message || "Xatolik yuz berdi!");
+      }
+    } else if (error.request) {
+      // Serverdan umuman javob kelmadi
+      toast.error("Internet yoki server bilan aloqa mavjud emas!");
+    } else {
+      // So‘rovni yuborishda boshqa xato
+      toast.error("So‘rov yuborishda xatolik!");
     }
+
     console.error("Error request:", error);
     return Promise.reject(error);
   }
 );
+
 
 export default request;

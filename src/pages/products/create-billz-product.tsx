@@ -18,7 +18,7 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetList } from "../../services/query/useGetList";
 import { endpoints } from "../../configs/endpoints";
 import type { CategoriesAllType } from "../../types/categories-type";
@@ -31,6 +31,13 @@ import {
   localMXIKNumbers,
   localSizesData,
 } from "../../components/products/local-data";
+import { useBillzGet } from "../../services/billz/query/useBillzGet";
+import type { BillzProductType } from "../../types/billz/product-type";
+
+type objectType = {
+  products: BillzProductType[];
+  count: number;
+};
 
 const CreateBillzProduct = () => {
   const [form] = Form.useForm();
@@ -38,6 +45,39 @@ const CreateBillzProduct = () => {
   const [referenceNumber, setReferenceNumber] = useState("");
   const [selectedColors, setSelectedColors] = useState<number[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+
+  const [searchValue, setSearchValue] = useState("");
+  // Asosiy GET
+  const {
+    data: BillzProducts,
+    // refetch: BillzRefetch,
+    // isLoading: BillzLoading,
+  } = useBillzGet<objectType>({
+    endpoint: "/v2/products",
+    params: {
+      search: searchValue,
+      limit: 10,
+    },
+    enabled: !searchValue, // filter ishlatilgan bo‘lsa, GET ishlamaydi
+  });
+
+  console.log(BillzProducts);
+
+  useEffect(() => {
+    if (BillzProducts?.products?.length) {
+      const firstProduct = BillzProducts.products[0];
+
+      form.setFieldsValue({
+        nameUZB: firstProduct.name,
+        nameRUS: firstProduct.name,
+        // descriptionUZB: firstProduct.description,
+        // descriptionRUS: firstProduct.description,
+        // boshqa kerakli fieldlarni ham map qilib qo‘yasiz
+
+        // ikpuNumber:firstProduct.
+      });
+    }
+  }, [BillzProducts, form]);
 
   const [sizeDetails, setSizeDetails] = useState<
     {
@@ -295,9 +335,13 @@ const CreateBillzProduct = () => {
       <Button
         size="large"
         type="primary"
-        onClick={() => navigate("/admin/products")}
+        onClick={() => navigate(-1)}
         icon={<LeftOutlined />}
         children="Mahsulotlarga qaytish"
+      />
+      <Input
+        placeholder="Billz Mahsulot qidirish"
+        onChange={(e) => setSearchValue(e.target.value)}
       />
 
       <div className="">
@@ -312,6 +356,9 @@ const CreateBillzProduct = () => {
               });
             }
           }}
+          // initialValues={{
+          //   nameUZB: BillzProducts?.products[0].name,
+          // }}
         >
           <Flex className="flex-wrap md:flex-nowrap" gap={12}>
             <Form.Item
@@ -614,6 +661,19 @@ const CreateBillzProduct = () => {
           </Flex>
 
           <Flex className="flex-wrap-reverse md:flex-nowrap" gap={12}>
+            <Flex >
+              {BillzProducts?.products.map((product) => (
+                <div className="space-y-2" key={product.id}>
+                  {product.custom_fields?.map((field) => (
+                    <div className="border" key={field.custom_field_id}>
+                      {field.custom_field_name}: 
+                      <b> {field.custom_field_value} </b>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </Flex>
+
             <Form.Item
               name={"colorIds"}
               label={
