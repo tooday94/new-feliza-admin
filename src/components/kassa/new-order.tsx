@@ -1,9 +1,3 @@
-const NewOrder = () => {
-  return <div></div>;
-};
-
-export default NewOrder;
-
 // import {
 //   Button,
 //   Input,
@@ -178,3 +172,9 @@ export default NewOrder;
 // };
 
 // export default NewOrder;
+
+const NewOrder = () => {
+  return <div>kassa</div>;
+};
+
+export default NewOrder;

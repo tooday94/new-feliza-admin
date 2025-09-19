@@ -62,6 +62,7 @@ function AddCategory() {
         parentCategoryUZ: selectedCategory?.nameUZB || "",
         parentCategoryRU: selectedCategory?.nameRUS || "",
       };
+      console.log("Payload:", payload);
 
       if (!editingCategory?.id) {
         toast.error("Tahrirlanadigan kategoriya topilmadi");
@@ -90,6 +91,7 @@ function AddCategory() {
           onError: (err) => {
             toast.error("Tahrirlashda xatolik yuz berdi!");
             console.error("Edit error:", err);
+            refetch();
           },
         }
       );
@@ -97,6 +99,76 @@ function AddCategory() {
       toast.error("Formani to‘ldirishda xatolik!");
     }
   };
+
+  // const handleEditCategory = async () => {
+  //   try {
+  //     const values = await form.validateFields();
+
+  //     const selectedCategory = parentCategories?.find(
+  //       (c) => c.id === values.parentCategory
+  //     );
+
+  //     const payload = {
+  //       nameUZB: values.nameUZB,
+  //       nameRUS: values.nameRUS,
+  //       parentCategoryUZ: selectedCategory?.nameUZB || "",
+  //       parentCategoryRU: selectedCategory?.nameRUS || "",
+  //     };
+
+  //     if (!editingCategory?.id) {
+  //       toast.error("Tahrirlanadigan kategoriya topilmadi");
+  //       return;
+  //     }
+
+  //     const formData = new FormData();
+  //     formData.append("editCategoryDto", JSON.stringify(payload));
+
+  //     // Horizontal rasm
+  //     if (horizontalImage) {
+  //       formData.append("horizontal", horizontalImage);
+  //     } else if (editingCategory?.horizontalImage?.url) {
+  //       const response = await fetch(editingCategory.horizontalImage.url);
+  //       const blob = await response.blob();
+  //       formData.append("horizontal", blob, "horizontal.png");
+  //     }
+
+  //     // Vertical rasm
+  //     if (verticalImage) {
+  //       formData.append("vertical", verticalImage);
+  //     } else if (editingCategory?.verticalImage?.url) {
+  //       const response = await fetch(editingCategory.verticalImage.url);
+  //       const blob = await response.blob();
+  //       formData.append("vertical", blob, "vertical.png");
+  //     }
+
+  //     editCategory(
+  //       { id: editingCategory.id, data: formData },
+  //       {
+  //         onSuccess: () => {
+  //           toast.success("Kategoriya muvaffaqiyatli tahrirlandi!", {
+  //             autoClose: 1500,
+  //           });
+  //           refetch();
+  //           setIsModalOpen(false);
+  //           setEditingCategory(null);
+  //           setHorizontalImage(null);
+  //           setVerticalImage(null);
+  //           form.resetFields();
+  //         },
+  //         onError: (err) => {
+  //           toast.error("Tahrirlashda xatolik yuz berdi!");
+  //           console.error("Edit error:", err);
+  //         },
+  //       }
+  //     );
+  //   } catch (err) {
+  //     toast.error("Formani to‘ldirishda xatolik!");
+  //   }
+  // };
+
+  // console.log("Editing Category:", editingCategory);
+
+  // console.log("Data:", data);
 
   const handleAddCategory = () => {
     form
@@ -122,13 +194,13 @@ function AddCategory() {
             });
           },
           onError: (error) => {
-            refetch(); // Refetch to update the table
-            form.resetFields();
-            setIsModalOpen(false);
             toast.success("Kategoriya qo'shildi (lekin xatolik yuz berdi)", {
               autoClose: 1500,
             });
+            setIsModalOpen(false);
+            form.resetFields();
             console.error("Xatolik:", error);
+            refetch(); // Refetch to update the table
           },
         });
       })
@@ -154,7 +226,7 @@ function AddCategory() {
           form.resetFields();
         }}
         onOk={editingCategory ? handleEditCategory : handleAddCategory}
-        okText={editingCategory ? "Tahrirlash" : "Qo'shish"}
+        okText={editingCategory ? "Saqlash" : "Qo'shish"}
         cancelText="Bekor qilish"
         destroyOnClose
         maskClosable={false}
@@ -221,12 +293,17 @@ function AddCategory() {
                         type="link"
                         onClick={() => {
                           setHorizontalImage(null);
+                          editingCategory.horizontalImage = null;
+
                           if (editingCategory.horizontalImage)
                             editingCategory.horizontalImage = null;
+                          // refetch();
                         }}
                         style={{ paddingLeft: 0 }}
                         icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
-                      ></Button>
+                      >
+                        hor
+                      </Button>
                     </div>
                   )}
 
@@ -270,10 +347,13 @@ function AddCategory() {
                           setVerticalImage(null);
                           if (editingCategory.verticalImage)
                             editingCategory.verticalImage = null;
+                          refetch();
                         }}
                         style={{ paddingLeft: 0 }}
                         icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
-                      ></Button>
+                      >
+                        ver
+                      </Button>
                     </div>
                   )}
 
