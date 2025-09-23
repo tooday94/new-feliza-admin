@@ -39,30 +39,29 @@ function AddCategory() {
     endpoint: endpoints.category.post,
     queryKey: endpoints.category.getAll,
   });
+
   const { mutate: deleteCategory } = useDeleteById({
     endpoint: endpoints.category.delete,
     queryKey: endpoints.category.getAll,
   });
+
   const { mutate: editCategory } = useUpdate({
     endpoint: endpoints.category.put,
     queryKey: endpoints.category.getAll,
   });
 
+  // ✅ Tahrirlash
   const handleEditCategory = async () => {
     try {
       const values = await form.validateFields();
 
-      const selectedCategory = parentCategories?.find(
-        (c) => c.id === values.parentCategory
-      );
-
+      // payload faqat nameUZB va nameRUS + eski parentCategory
       const payload = {
         nameUZB: values.nameUZB,
         nameRUS: values.nameRUS,
-        parentCategoryUZ: selectedCategory?.nameUZB || "",
-        parentCategoryRU: selectedCategory?.nameRUS || "",
+        parentCategoryUZ: editingCategory?.parentCategoryUZ || "",
+        // parentCategoryRU: editingCategory?.parentCategoryRU || "",
       };
-      console.log("Payload:", payload);
 
       if (!editingCategory?.id) {
         toast.error("Tahrirlanadigan kategoriya topilmadi");
@@ -95,81 +94,12 @@ function AddCategory() {
           },
         }
       );
-    } catch (err) {
+    } catch {
       toast.error("Formani to‘ldirishda xatolik!");
     }
   };
 
-  // const handleEditCategory = async () => {
-  //   try {
-  //     const values = await form.validateFields();
-
-  //     const selectedCategory = parentCategories?.find(
-  //       (c) => c.id === values.parentCategory
-  //     );
-
-  //     const payload = {
-  //       nameUZB: values.nameUZB,
-  //       nameRUS: values.nameRUS,
-  //       parentCategoryUZ: selectedCategory?.nameUZB || "",
-  //       parentCategoryRU: selectedCategory?.nameRUS || "",
-  //     };
-
-  //     if (!editingCategory?.id) {
-  //       toast.error("Tahrirlanadigan kategoriya topilmadi");
-  //       return;
-  //     }
-
-  //     const formData = new FormData();
-  //     formData.append("editCategoryDto", JSON.stringify(payload));
-
-  //     // Horizontal rasm
-  //     if (horizontalImage) {
-  //       formData.append("horizontal", horizontalImage);
-  //     } else if (editingCategory?.horizontalImage?.url) {
-  //       const response = await fetch(editingCategory.horizontalImage.url);
-  //       const blob = await response.blob();
-  //       formData.append("horizontal", blob, "horizontal.png");
-  //     }
-
-  //     // Vertical rasm
-  //     if (verticalImage) {
-  //       formData.append("vertical", verticalImage);
-  //     } else if (editingCategory?.verticalImage?.url) {
-  //       const response = await fetch(editingCategory.verticalImage.url);
-  //       const blob = await response.blob();
-  //       formData.append("vertical", blob, "vertical.png");
-  //     }
-
-  //     editCategory(
-  //       { id: editingCategory.id, data: formData },
-  //       {
-  //         onSuccess: () => {
-  //           toast.success("Kategoriya muvaffaqiyatli tahrirlandi!", {
-  //             autoClose: 1500,
-  //           });
-  //           refetch();
-  //           setIsModalOpen(false);
-  //           setEditingCategory(null);
-  //           setHorizontalImage(null);
-  //           setVerticalImage(null);
-  //           form.resetFields();
-  //         },
-  //         onError: (err) => {
-  //           toast.error("Tahrirlashda xatolik yuz berdi!");
-  //           console.error("Edit error:", err);
-  //         },
-  //       }
-  //     );
-  //   } catch (err) {
-  //     toast.error("Formani to‘ldirishda xatolik!");
-  //   }
-  // };
-
-  // console.log("Editing Category:", editingCategory);
-
-  // console.log("Data:", data);
-
+  // ✅ Qo‘shish
   const handleAddCategory = () => {
     form
       .validateFields()
@@ -194,20 +124,16 @@ function AddCategory() {
             });
           },
           onError: (error) => {
-            toast.success("Kategoriya qo'shildi (lekin xatolik yuz berdi)", {
-              autoClose: 1500,
-            });
+            toast.error("Kategoriya qo‘shishda xatolik!", { autoClose: 1500 });
+            console.error("Xatolik:", error);
             setIsModalOpen(false);
             form.resetFields();
-            console.error("Xatolik:", error);
-            refetch(); // Refetch to update the table
+            refetch();
           },
         });
       })
       .catch(() => {
-        toast.error("Formani to'ldirishda xatolik!", {
-          autoClose: 1500,
-        });
+        toast.error("Formani to'ldirishda xatolik!", { autoClose: 1500 });
       });
   };
 
@@ -232,19 +158,24 @@ function AddCategory() {
         maskClosable={false}
       >
         <Form form={form} layout="vertical">
-          <Form.Item
-            label="Parent Category"
-            name="parentCategory"
-            rules={[{ required: true, message: "Parent Categoryni tanlang!" }]}
-          >
-            <Select placeholder="Parent Category tanlang">
-              {parentCategories?.map((cat) => (
-                <Select.Option key={cat.id} value={cat.id}>
-                  {cat.nameUZB}
-                </Select.Option>
-              ))}
-            </Select>
-          </Form.Item>
+          {/* ✅ faqat qo‘shishda ko‘rinadi */}
+          {!editingCategory && (
+            <Form.Item
+              label="Parent Category"
+              name="parentCategory"
+              rules={[
+                { required: true, message: "Parent Categoryni tanlang!" },
+              ]}
+            >
+              <Select placeholder="Parent Category tanlang">
+                {parentCategories?.map((cat) => (
+                  <Select.Option key={cat.id} value={cat.id}>
+                    {cat.nameUZB}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+          )}
 
           <Form.Item
             label="Name UZB"
@@ -261,58 +192,70 @@ function AddCategory() {
           >
             <Input placeholder="Name RUS" />
           </Form.Item>
-          {/*  */}
+
+          {/* ✅ Rasm faqat tahrirlashda */}
           {editingCategory && (
             <>
               {/* Horizontal Rasm */}
               <Form.Item label="Horizontal Rasm">
                 <div
-                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  style={{ display: "flex", flexDirection: "column", gap: 12 }}
                 >
                   {(horizontalImage ||
                     editingCategory?.horizontalImage?.url) && (
-                    <div
-                      style={{ position: "relative", display: "inline-block" }}
-                    >
-                      <Image
-                        src={
-                          horizontalImage
-                            ? URL.createObjectURL(horizontalImage)
-                            : editingCategory?.horizontalImage?.url
-                        }
-                        alt="Horizontal"
-                        style={{
-                          width: 140,
-                          height: "auto",
-                          borderRadius: 8,
-                          border: "1px solid #ddd",
-                        }}
-                      />
-                      <Button
-                        danger
-                        type="link"
-                        onClick={() => {
-                          setHorizontalImage(null);
-                          editingCategory.horizontalImage = null;
-
-                          if (editingCategory.horizontalImage)
-                            editingCategory.horizontalImage = null;
-                          // refetch();
-                        }}
-                        style={{ paddingLeft: 0 }}
-                        icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
-                      >
-                        hor
-                      </Button>
-                    </div>
+                    <Image
+                      src={
+                        horizontalImage
+                          ? URL.createObjectURL(horizontalImage)
+                          : editingCategory?.horizontalImage?.url
+                      }
+                      alt="Horizontal"
+                      style={{
+                        width: 250,
+                        height: 250,
+                        objectFit: "cover",
+                        borderRadius: 10,
+                        border: "1px solid #ddd",
+                      }}
+                    />
                   )}
 
+                  <div style={{ display: "flex", gap: 10 }}>
+                    {/* Rasm tanlash doimo ko‘rinadi */}
+                    <label
+                      htmlFor="horizontal-upload"
+                      style={{
+                        padding: "6px 12px",
+                        background: "#000",
+                        color: "#fff",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Rasm tanlash
+                    </label>
+
+                    {/* Delete tugmasi faqat rasm mavjud bo‘lsa */}
+                    {(horizontalImage ||
+                      editingCategory?.horizontalImage?.url) && (
+                      <Button
+                        danger
+                        onClick={() => setHorizontalImage(null)}
+                        icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </div>
+
                   <input
+                    id="horizontal-upload"
                     type="file"
                     accept="image/*"
                     onChange={(e) =>
                       setHorizontalImage(e.target.files?.[0] || null)
                     }
+                    style={{ display: "none" }}
                   />
                 </div>
               </Form.Item>
@@ -320,49 +263,59 @@ function AddCategory() {
               {/* Vertical Rasm */}
               <Form.Item label="Vertical Rasm">
                 <div
-                  style={{ display: "flex", flexDirection: "column", gap: 8 }}
+                  style={{ display: "flex", flexDirection: "column", gap: 12 }}
                 >
-                  {(verticalImage || editingCategory.verticalImage?.url) && (
-                    <div
-                      style={{ position: "relative", display: "inline-block" }}
-                    >
-                      <Image
-                        src={
-                          verticalImage
-                            ? URL.createObjectURL(verticalImage)
-                            : editingCategory.verticalImage?.url
-                        }
-                        alt="Vertical"
-                        style={{
-                          width: 140,
-                          height: "auto",
-                          borderRadius: 8,
-                          border: "1px solid #ddd",
-                        }}
-                      />
-                      <Button
-                        danger
-                        type="link"
-                        onClick={() => {
-                          setVerticalImage(null);
-                          if (editingCategory.verticalImage)
-                            editingCategory.verticalImage = null;
-                          refetch();
-                        }}
-                        style={{ paddingLeft: 0 }}
-                        icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
-                      >
-                        ver
-                      </Button>
-                    </div>
+                  {(verticalImage || editingCategory?.verticalImage?.url) && (
+                    <Image
+                      src={
+                        verticalImage
+                          ? URL.createObjectURL(verticalImage)
+                          : editingCategory?.verticalImage?.url
+                      }
+                      alt="Vertical"
+                      style={{
+                        width: 250,
+                        height: 250,
+                        objectFit: "cover",
+                        borderRadius: 10,
+                        border: "1px solid #ddd",
+                      }}
+                    />
                   )}
 
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <label
+                      htmlFor="vertical-upload"
+                      style={{
+                        padding: "6px 12px",
+                        background: "#000",
+                        color: "#fff",
+                        borderRadius: 6,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Rasm tanlash
+                    </label>
+
+                    {(verticalImage || editingCategory?.verticalImage?.url) && (
+                      <Button
+                        danger
+                        onClick={() => setVerticalImage(null)}
+                        icon={<DeleteTwoTone twoToneColor="#ff4d4f" />}
+                      >
+                        Delete
+                      </Button>
+                    )}
+                  </div>
+
                   <input
+                    id="vertical-upload"
                     type="file"
                     accept="image/*"
                     onChange={(e) =>
                       setVerticalImage(e.target.files?.[0] || null)
                     }
+                    style={{ display: "none" }}
                   />
                 </div>
               </Form.Item>
@@ -377,7 +330,6 @@ function AddCategory() {
         rowKey="id"
         bordered
         scroll={{ x: true }}
-        // pagination={{ pageSize: 15, showSizeChanger: false }} pagination false
         pagination={false}
         title={() => (
           <div className="flex justify-between items-center">
@@ -428,9 +380,6 @@ function AddCategory() {
                       form.setFieldsValue({
                         nameUZB: record.nameUZB,
                         nameRUS: record.nameRUS,
-                        parentCategory: parentCategories?.find(
-                          (cat) => cat.nameUZB === record.parentCategoryUZ
-                        )?.id,
                       });
                       setIsModalOpen(true);
                     }}
@@ -449,13 +398,11 @@ function AddCategory() {
                           );
                         },
                         onError: (err) => {
-                          toast.success(
-                            "Kategoriya muvaffaqiyatli o‘chirildi!"
-                          );
+                          toast.error("O‘chirishda xatolik!");
                           console.error("Delete Error:", err);
                           refetch();
                         },
-                      } // yoki faqat id bo‘lishi mumkin: deleteCategory(id)
+                      }
                     )
                   }
                   title="O‘chirishni tasdiqlaysizmi?"
