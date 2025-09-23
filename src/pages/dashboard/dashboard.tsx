@@ -25,6 +25,8 @@ const { Title, Text } = Typography;
 const Dashboard = () => {
   const today = dayjs().format("YYYY-MM-DD");
   const [selectedDate, setSelectedDate] = useState(today);
+  const [month, setMonth] = useState(dayjs().month() + 1);
+  const [year, setYear] = useState(dayjs().year());
   const { data, isLoading } = useGetList<AdminType[]>({
     endpoint: endpoints.order.getAll,
   });
@@ -111,6 +113,12 @@ const Dashboard = () => {
     },
   };
 
+  // excel yuklab olish funktsiyasi
+  const downloadExcel = () => {
+    const url = `https://felizabackend.uz/api/export/monthlyStats?year=${year}&month=${month}`;
+    window.open(url);
+  };
+
   return (
     <div className="p-6 bg-white min-h-screen">
       <div className="flex justify-between items-center mb-8">
@@ -122,18 +130,26 @@ const Dashboard = () => {
             So‘nggi 30 kunlik buyurtmalar statistikasi
           </Text>
         </div>
-        <Button
-          type="primary"
-          icon={<GoDownload size={20} />}
-          className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-md shadow border-none"
-          onClick={() => {
-            window.open(
-              "https://felizabackend.uz/api/export/monthlyStats?year=2025&month=8"
-            );
-          }}
-        >
-          Yuklab olish
-        </Button>
+        <Flex gap={10} align="center">
+          <DatePicker
+            picker="month"
+            defaultValue={dayjs()}
+            onChange={(date) => {
+              if (date) {
+                setMonth(date.month() + 1);
+                setYear(date.year());
+              }
+            }}
+          />
+          <Button
+            type="primary"
+            icon={<GoDownload size={20} />}
+            className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded-md shadow border-none"
+            onClick={downloadExcel}
+          >
+            Yuklab olish
+          </Button>
+        </Flex>
       </div>
 
       {/* Statistikalar */}
