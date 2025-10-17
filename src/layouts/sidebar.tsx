@@ -81,6 +81,11 @@ const menuSections: MenuSection[] = [
         icon: <ShoppingOutlined />,
         label: "Kassa",
       },
+      {
+        key: "/admin/messages",
+        icon: <SoundOutlined />,
+        label: "Xabarlar",
+      },
     ],
   },
 ];

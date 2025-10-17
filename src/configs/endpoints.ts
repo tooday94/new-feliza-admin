@@ -128,6 +128,7 @@ export const endpoints = {
     getById: "/api/notification/getNotificationsForCustomer/",
     postAll: "/api/notification/addNotificationToAll",
     postToUser: "/api/notification/addNotificationToCustomer",
+    delete: "/api/notification/deleteNotification/",
   },
   review: {
     reviewAll: "/api/review/getAllReviews",
@@ -137,5 +138,9 @@ export const endpoints = {
   payment: {
     getAll: "/payment/getAllPayments",
     getByDate: "/payment/by-date",
+  },
+  messages: {
+    getAll: "/api/message/getAllMessages?page=0&size=40",
+    put: "/api/message/asReadUpdating/",
   },
 };

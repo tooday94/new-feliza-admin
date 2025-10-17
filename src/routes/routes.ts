@@ -65,4 +65,8 @@ export const routes = [
     path: "kassa",
     element: React.lazy(() => import("../pages/kassa/kassa")),
   },
+  {
+    path: "messages",
+    element: React.lazy(() => import("../pages/message/messages")),
+  },
 ];

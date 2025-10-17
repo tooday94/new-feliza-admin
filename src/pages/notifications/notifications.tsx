@@ -6,6 +6,7 @@ import {
   Grid,
   Input,
   Modal,
+  Popconfirm,
   Select,
   Table,
   Typography,
@@ -23,6 +24,8 @@ import { useGetList } from "../../services/query/useGetList";
 import { toast } from "react-toastify";
 import type { UserType } from "../../types/user-type";
 import { useNavigate } from "react-router-dom";
+import { useDeleteById } from "../../services/mutation/useDeleteById";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const Notifications = () => {
   const [form] = Form.useForm();
@@ -34,6 +37,7 @@ const Notifications = () => {
   const [selectedType, setSelectedType] = useState("text");
   const [userPhoneNumber, setUserPhoneNumber] = useState("+998");
   const [searchedUserID, setsearchedUserID] = useState<string | number>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data, isLoading } = useGetById<NotificationsType[]>({
     endpoint: endpoints.notifications.getById,
@@ -67,13 +71,37 @@ const Notifications = () => {
     endpoint: endpoints.notifications.postToUser,
     queryKey: endpoints.notifications.getById,
   });
+  const { mutate: NotificationDelete } = useDeleteById({
+    endpoint: endpoints.notifications.delete,
+    queryKey: endpoints.notifications.getById,
+  });
 
+  const handleDelete = (id: string | string) => {
+    NotificationDelete(
+      { id: id },
+      {
+        onSuccess: () => {
+          toast.success("Xabar o'chirildi!", {
+            position: "top-center",
+            autoClose: 1500,
+          });
+        },
+        onError: () => {
+          toast.error("Xabarni o'chirishda xatolik!", {
+            position: "top-center",
+          });
+        },
+      }
+    );
+  };
   const createAll = (values: {
     type: string;
     title: string;
     message: string;
     reserveId: string;
   }) => {
+    setIsSubmitting(true); // ⬅️ Bosilganda disable holatga o‘tadi
+
     if (openType == "all" && !file) {
       return toast.error("Iltimos, rasm tanlang");
     }
@@ -94,7 +122,11 @@ const Notifications = () => {
           onSuccess: () => {
             toast.success("Hammaga xabar yuborildi!", {
               position: "top-center",
+              autoClose: 1500,
             });
+            setIsSubmitting(false); // ✅ Bosish yana faollashadi
+            form.resetFields();
+            setOpen(false);
           },
           onError: () => {
             toast.error("Hamma uchun xabar yuborishda xatolik", {
@@ -117,7 +149,11 @@ const Notifications = () => {
             onSuccess: () => {
               toast.success("Mijozga xabar yuborildi!", {
                 position: "top-center",
+                autoClose: 1500,
               });
+              form.resetFields();
+              setOpen(false);
+              setIsSubmitting(false); // ✅ Bosish yana faollashadi
             },
             onError: () => {
               toast.error("Mijozga xabar yuborishda xatolik", {
@@ -204,6 +240,21 @@ const Notifications = () => {
             title: "Vaqt",
             dataIndex: "createdAt",
             render: (data) => dateFormat(data),
+          },
+          // delete qoshish uchu
+          {
+            title: "Amallar",
+            align: "center",
+            render: (_, record: any) => (
+              <Popconfirm
+                title="Delete qilmoqchimisiz?"
+                okText="Ha"
+                cancelText="Yo'q"
+                onConfirm={() => handleDelete(record.id)}
+              >
+                <Button icon={<DeleteOutlined />} danger />
+              </Popconfirm>
+            ),
           },
         ]}
         pagination={{
@@ -329,6 +380,8 @@ const Notifications = () => {
               block
               type="primary"
               htmlType="submit"
+              loading={isSubmitting} // ✅ loading holati
+              disabled={isSubmitting} // ✅ bosib bo‘lmaydi
               children="Jo'natish"
             />
           </Form.Item>
