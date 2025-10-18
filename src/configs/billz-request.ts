@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "react-toastify";
-
+import Cookies from "js-cookie";
 const BILLZ_API = "https://api-admin.billz.ai";
 
 const billzRequest = axios.create({
@@ -8,8 +8,7 @@ const billzRequest = axios.create({
 });
 
 billzRequest.interceptors.request.use((config) => {
-  const token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnRfcGxhdGZvcm1faWQiOiI3ZDRhNGMzOC1kZDg0LTQ5MDItYjc0NC0wNDg4YjgwYTRjMDEiLCJjb21wYW55X2lkIjoiMDIwYTZiZWItNmYyNi00ODFjLWIwMTUtZjJhYWQ2NDVmYWMyIiwiZGF0YSI6IiIsImV4cCI6MTc1OTg1MTAwNSwiaWF0IjoxNzU3MjU5MDA1LCJpZCI6IjYxOTgxYzFiLTE2NWItNDU2Ni1iMGRkLTZiYjU0Y2Y0YmE2MSIsInVzZXJfaWQiOiI1N2EzNDJlNC05ZjE3LTQzNGItODY4NS0yZDA0YjA1MzIxMTUifQ.H0AkzxaxJUsCHJE4blnjhaqTlkRPkDa8PmlxyV1m9P0";
+  const token = Cookies.get("BILLZ-TOKEN");
 
   if (token) {
     config.headers["Authorization"] = `Bearer ${token}`;

@@ -247,17 +247,17 @@ const SiteProducts = () => {
                   <div>
                     <p className="space-x-2 text-lg border p-3 text-nowrap">
                       <strong>Nomi:</strong>
-                      <span>{text.nameUZB}</span>
+                      <span>{text?.nameUZB}</span>
                     </p>
                     <p className="space-x-2 text-lg border p-3 text-nowrap">
                       <strong>Code:</strong>
-                      <span>{text.colorCode}</span>
+                      <span>{text?.colorCode}</span>
                     </p>
                   </div>
                 }
               >
                 <div
-                  style={{ background: text.colorCode }}
+                  style={{ background: text?.colorCode }}
                   className={`w-6 h-6 rounded-md cursor-pointer shadow-sm shadow-primary`}
                 ></div>
               </Tooltip>
