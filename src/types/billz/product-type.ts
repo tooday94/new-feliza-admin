@@ -6,7 +6,18 @@ export interface BillzProductType {
   sku?: string;
   supply_price?: string;
   categories?: { id: string; name: string; parent_id: string }[];
-  product_supplier_stock?: any[];
+  product_supplier_stock?: [
+    {
+      max_supply_price: number;
+      measurement_value: number;
+      min_supply_price: number;
+      retail_price: number;
+      shop_id: string;
+      supplier_id: string;
+      supplier_name: string;
+      wholesale_price: number;
+    }
+  ];
   shop_prices?: {
     promo_price: number;
     promos: null | string | number;

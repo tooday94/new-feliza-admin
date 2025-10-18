@@ -10,19 +10,13 @@ import {
   TreeSelect,
   type UploadFile,
 } from "antd";
-import {
-  CheckCircleOutlined,
-  CloseOutlined,
-  LeftOutlined,
-  PlusOutlined,
-  ReloadOutlined,
-} from "@ant-design/icons";
+import { CloseOutlined, LeftOutlined, PlusOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useGetList } from "../../services/query/useGetList";
 import { endpoints } from "../../configs/endpoints";
 import type { CategoriesAllType } from "../../types/categories-type";
-import { useCreate } from "../../services/mutation/useCreate";
+// import { useCreate } from "../../services/mutation/useCreate";
 import { toast } from "react-toastify";
 import type { allBrandsType, allColorsType } from "../../types/products-type";
 import SortableUpload from "../../components/products/sortable-upload";
@@ -43,7 +37,7 @@ const CreateBillzProduct = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [referenceNumber, setReferenceNumber] = useState("");
-  const [selectedColors, setSelectedColors] = useState<number[]>([]);
+  const [selectedColors] = useState<number[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
 
   const [searchValue, setSearchValue] = useState("");
@@ -56,12 +50,13 @@ const CreateBillzProduct = () => {
     endpoint: "/v2/products",
     params: {
       search: searchValue,
-      limit: 10,
+      limit: 100,
     },
-    enabled: !searchValue, // filter ishlatilgan bo‘lsa, GET ishlamaydi
+    enabled: Boolean(searchValue), // filter ishlatilgan bo‘lsa, GET ishlamaydi
   });
 
   console.log(BillzProducts);
+  console.log(!searchValue, searchValue);
 
   useEffect(() => {
     if (BillzProducts?.products?.length) {
@@ -73,9 +68,12 @@ const CreateBillzProduct = () => {
         // descriptionUZB: firstProduct.description,
         // descriptionRUS: firstProduct.description,
         // boshqa kerakli fieldlarni ham map qilib qo‘yasiz
-
+        importPrice:
+          firstProduct?.product_supplier_stock?.[0]?.max_supply_price || 0,
+        sellPrice: firstProduct?.shop_prices?.[0]?.retail_price || 0,
         // ikpuNumber:firstProduct.
       });
+      setReferenceNumber(firstProduct?.sku ? firstProduct.sku : "");
     }
   }, [BillzProducts, form]);
 
@@ -129,12 +127,12 @@ const CreateBillzProduct = () => {
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  const { mutate: AddProduct, isPending } = useCreate({
-    endpoint: endpoints.products.post,
-    queryKey: endpoints.products.getAll,
-  });
+  // const { mutate: AddProduct, isPending } = useCreate({
+  //   endpoint: endpoints.products.post,
+  //   queryKey: endpoints.products.getAll,
+  // });
 
-  const { data, refetch } = useGetList<allColorsType[]>({
+  const { data } = useGetList<allColorsType[]>({
     endpoint: endpoints.color.getAll,
   });
 
@@ -175,16 +173,18 @@ const CreateBillzProduct = () => {
     });
   };
 
-  const toggleColor = (id: number) => {
-    const updated = selectedColors.includes(id)
-      ? selectedColors.filter((colorId) => colorId !== id)
-      : [...selectedColors, id];
+  // const toggleColor = (id: number) => {
+  //   const updated = selectedColors.includes(id)
+  //     ? selectedColors.filter((colorId) => colorId !== id)
+  //     : [...selectedColors, id];
 
-    setSelectedColors(updated);
-    console.log("Selected Colors:", updated);
-  };
+  //   setSelectedColors(updated);
+  //   console.log("Selected Colors:", updated);
+  // };
 
   const onFinish = (values: any) => {
+    console.log("Valuesss", values);
+
     selectedColors.map((colorId) => {
       const productSizeVariantDtoList = sizeDetails
         .filter((item) => item.colorId === colorId)
@@ -240,19 +240,19 @@ const CreateBillzProduct = () => {
       }
 
       console.log("Yuboriladigan mahsulotlar JSON:", FullData);
-      return AddProduct(formData, {
-        onSuccess: () => (
-          toast.success("Yangi Mahsulot Qo'shildi!"),
-          form.resetFields(),
-          setColorImages([]),
-          setReferenceNumber(""),
-          setSelectedSizes([]),
-          setSizeDetails([]),
-          setSelectedColors([])
-        ),
-        onError: () =>
-          toast.error("Mahsulot Qo'shishda Xatolik. Qayta urinib ko'ring..."),
-      });
+      // return AddProduct(formData, {
+      //   onSuccess: () => (
+      //     toast.success("Yangi Mahsulot Qo'shildi!"),
+      //     form.resetFields(),
+      //     setColorImages([]),
+      //     setReferenceNumber(""),
+      //     setSelectedSizes([]),
+      //     setSizeDetails([]),
+      //     setSelectedColors([])
+      //   ),
+      //   onError: () =>
+      //     toast.error("Mahsulot Qo'shishda Xatolik. Qayta urinib ko'ring..."),
+      // });
     });
   };
 
@@ -340,7 +340,7 @@ const CreateBillzProduct = () => {
         children="Mahsulotlarga qaytish"
       />
       <Input
-        placeholder="Billz Mahsulot qidirish"
+        placeholder="Billz Mahsulot qidirish Ref nomer bilan"
         onChange={(e) => setSearchValue(e.target.value)}
       />
 
@@ -434,7 +434,16 @@ const CreateBillzProduct = () => {
                   className="w-full"
                   rules={[{ required: true, message: "kiritish shart!" }]}
                   name={"ikpuNumber"}
-                  label="IKPU nomer"
+                  label={
+                    <div className="space-x-2">
+                      <h1>IKPU nomer</h1>
+                      <div className="border p-1 text-lg">
+                        {BillzProducts?.products?.[0]?.categories
+                          ?.map((item) => item.name)
+                          .join(", ")}
+                      </div>
+                    </div>
+                  }
                 >
                   <Select
                     showSearch
@@ -641,8 +650,17 @@ const CreateBillzProduct = () => {
                   <Form.Item
                     rules={[{ required: true, message: "kiritish shart!" }]}
                     name={"brandId"}
-                    label="Brand tanlang"
+                    // label="Brand tanlang"
                     className="w-full"
+                    label={
+                      <div className="space-x-2">
+                        <h1>Brand tanlang</h1>
+                        <div className="border p-1 text-lg">
+                          {BillzProducts?.products?.[0]?.brand_name ||
+                            "Brand yo'q"}
+                        </div>
+                      </div>
+                    }
                   >
                     <Select
                       className="!w-full"
@@ -660,21 +678,97 @@ const CreateBillzProduct = () => {
             </Flex>
           </Flex>
 
-          <Flex className="flex-wrap-reverse md:flex-nowrap" gap={12}>
-            <Flex >
-              {BillzProducts?.products.map((product) => (
-                <div className="space-y-2" key={product.id}>
-                  {product.custom_fields?.map((field) => (
-                    <div className="border" key={field.custom_field_id}>
-                      {field.custom_field_name}: 
-                      <b> {field.custom_field_value} </b>
+          <Flex className="flex-wrap-reverse md:flex-wrap" gap={12}>
+            <Flex className="w-full flex-col border gap-5">
+              {(() => {
+                // Rang bo‘yicha guruhlash
+                const groupedByColor: Record<
+                  string,
+                  { size: string; barcode: string; value: number }[]
+                > = {};
+
+                BillzProducts?.products.forEach((product) => {
+                  const colorField = product.custom_fields?.find(
+                    (f) => f.custom_field_name === "Цвет"
+                  );
+                  const sizeField = product.custom_fields?.find(
+                    (f) => f.custom_field_name === "Размер"
+                  );
+
+                  if (colorField) {
+                    const color = colorField.custom_field_value;
+                    if (!groupedByColor[color]) {
+                      groupedByColor[color] = [];
+                    }
+
+                    groupedByColor[color].push({
+                      size: sizeField?.custom_field_value || "N/A",
+                      barcode: product?.barcode || "N/A",
+                      value:
+                        product.shop_measurement_values?.find(
+                          (v) => v.shop_name === "Online"
+                        )?.active_measurement_value || 0,
+                    });
+                  }
+                });
+
+                // Render qilish
+                return Object.entries(groupedByColor).map(
+                  ([color, variants]) => (
+                    <div
+                      key={color}
+                      className="border p-2 m-2 rounded shadow-lg"
+                    >
+                      <div className="border-b flex justify-between py-2 mb-2">
+                        <h2 className="text-lg border-r w-full">
+                          Color: <b>{color}</b>
+                        </h2>
+
+                        <div className="border-l w-full flex justify-end">
+                          <Button children="Rang Tanlash" />
+                        </div>
+                      </div>
+
+                      {variants.map((v, idx) => (
+                        <div key={idx} className="">
+                          <div className="flex">
+                            <p>Size:</p>
+                            <b>{v.size == "0" ? " STANDART" : v.size}</b>
+                          </div>
+
+                          <div className="flex justify-between border-t mt-2 pt-2">
+                            <div className="flex gap-2">
+                              <p>Barcode: </p>
+                              <span className="font-bold">{v.barcode}</span>
+                            </div>
+
+                            <div className="">
+                              <Input placeholder="Barcode" />
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between border-t mt-2 pt-2">
+                            <div className="flex gap-2">
+                              <p>Soni: </p>
+                              <span className="font-bold">{v.value}</span>
+                            </div>
+
+                            <div className="">
+                              <InputNumber
+                                placeholder="Soni"
+                                defaultValue={v.value}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ))}
+                  )
+                );
+              })()}
             </Flex>
 
-            <Form.Item
+            {/* <Form.Item
               name={"colorIds"}
               label={
                 <Flex align="center" gap={12}>
@@ -717,7 +811,7 @@ const CreateBillzProduct = () => {
                   </Tooltip>
                 ))}
               </div>
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item
               rules={[
@@ -938,7 +1032,8 @@ const CreateBillzProduct = () => {
 
           <Form.Item className="!mt-5 text-center">
             <Button
-              loading={isPending}
+              // loading={isPending}
+              disabled
               size="large"
               htmlType="submit"
               type="primary"

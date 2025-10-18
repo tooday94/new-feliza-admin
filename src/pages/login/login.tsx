@@ -6,6 +6,7 @@ import Cookie from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { useGetList } from "../../services/query/useGetList";
 
 type AuthRequest = {
   phoneNumber?: string;
@@ -18,12 +19,20 @@ interface ApiResponse {
   phoneNumber: string;
 }
 
+interface TokenResponse {
+  token: string;
+}
+
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm<AuthRequest>();
   const { mutate, isPending } = useCreate<ApiResponse, AuthRequest>({
     endpoint: endpoints.auth.login,
     queryKey: "",
+  });
+
+  const { data: billzToken } = useGetList<TokenResponse>({
+    endpoint: "/api/externToken/getBillzToken",
   });
 
   useEffect(() => {
@@ -37,7 +46,7 @@ const Login: React.FC = () => {
     mutate(values, {
       onSuccess: (data) => {
         console.log(data);
-        
+
         Cookie.set("FELIZA-TOKEN", data.accessToken, {
           expires: 1,
           secure: true,
@@ -50,6 +59,15 @@ const Login: React.FC = () => {
           expires: 1,
           secure: true,
         });
+
+        {
+          billzToken?.token &&
+            Cookie.set("BILLZ-TOKEN", billzToken?.token ?? "", {
+              expires: 30,
+              secure: true,
+            });
+        }
+
         navigate("/admin/dashboard");
         toast.success("Kirish Tasdiqlandi!", { position: "top-center" });
       },
