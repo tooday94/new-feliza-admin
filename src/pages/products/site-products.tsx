@@ -241,28 +241,54 @@ const SiteProducts = () => {
             width: "0",
             title: "Rang",
             dataIndex: "color",
-            render: (text) => (
-              <Tooltip
-                title={
-                  <div>
-                    <p className="space-x-2 text-lg border p-3 text-nowrap">
-                      <strong>Nomi:</strong>
-                      <span>{text?.nameUZB}</span>
-                    </p>
-                    <p className="space-x-2 text-lg border p-3 text-nowrap">
-                      <strong>Code:</strong>
-                      <span>{text?.colorCode}</span>
-                    </p>
-                  </div>
-                }
-              >
-                <div
-                  style={{ background: text?.colorCode }}
-                  className={`w-6 h-6 rounded-md cursor-pointer shadow-sm shadow-primary`}
-                ></div>
-              </Tooltip>
-            ),
+            render: (text) =>
+              text ? (
+                <Tooltip
+                  title={
+                    <div>
+                      <p className="space-x-2 text-lg border p-3 text-nowrap">
+                        <strong>Nomi:</strong>
+                        <span>{text?.nameUZB || "-"}</span>
+                      </p>
+                      <p className="space-x-2 text-lg border p-3 text-nowrap">
+                        <strong>Code:</strong>
+                        <span>{text?.colorCode || "-"}</span>
+                      </p>
+                    </div>
+                  }
+                >
+                  <div
+                    style={{ background: text?.colorCode || "#ccc" }}
+                    className="w-6 h-6 rounded-md cursor-pointer shadow-sm shadow-primary"
+                  ></div>
+                </Tooltip>
+              ) : (
+                "-"
+              ),
           },
+
+          // render: (text) => (
+          //   <Tooltip
+          //     title={
+          //       <div>
+          //         <p className="space-x-2 text-lg border p-3 text-nowrap">
+          //           <strong>Nomi:</strong>
+          //           <span>{text.nameUZB}</span>
+          //         </p>
+          //         <p className="space-x-2 text-lg border p-3 text-nowrap">
+          //           <strong>Code:</strong>
+          //           <span>{text.colorCode}</span>
+          //         </p>
+          //       </div>
+          //     }
+          //   >
+          //     <div
+          //       style={{ background: text.colorCode }}
+          //       className={`w-6 h-6 rounded-md cursor-pointer shadow-sm shadow-primary`}
+          //     ></div>
+          //   </Tooltip>
+          // ),
+
           {
             title: "Img",
             dataIndex: "productImages",
