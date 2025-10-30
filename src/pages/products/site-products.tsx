@@ -60,8 +60,9 @@ const SiteProducts = () => {
       page: currentPage - 1,
       size: limit,
     },
+    enabled: !searchValue,
   });
-  console.log(AllProducts);
+  // console.log(AllProducts);
 
   const { data: activeProducts, isLoading: activeProductsLoad } =
     useGetList<objectType>({
@@ -70,16 +71,17 @@ const SiteProducts = () => {
         page: currentPage - 1,
         size: limit,
       },
+      enabled: !searchValue,
     });
-  console.log(activeProducts);
+  // console.log(activeProducts);
 
   const { data: searchedProducts, isLoading: searchedProductsLoad } =
     useGetList<Product[]>({
-      endpoint: "/api/product/getProductByRefNumAdmin/" + searchValue,
+      endpoint: endpoints.products.getByRefNumber + searchValue,
       enabled: searchValue.length > 0,
     });
 
-  console.log(searchedProducts);
+  // console.log(searchedProducts);
 
   const [selectedProduct, setSelectedProduct] = useState("");
   const { mutate: updateStatus } = useCreate({
@@ -263,29 +265,30 @@ const SiteProducts = () => {
               ) : (
                 "-"
               ),
-
-            // render: (text) => (
-            //   <Tooltip
-            //     title={
-            //       <div>
-            //         <p className="space-x-2 text-lg border p-3 text-nowrap">
-            //           <strong>Nomi:</strong>
-            //           <span>{text.nameUZB}</span>
-            //         </p>
-            //         <p className="space-x-2 text-lg border p-3 text-nowrap">
-            //           <strong>Code:</strong>
-            //           <span>{text.colorCode}</span>
-            //         </p>
-            //       </div>
-            //     }
-            //   >
-            //     <div
-            //       style={{ background: text.colorCode }}
-            //       className={`w-6 h-6 rounded-md cursor-pointer shadow-sm shadow-primary`}
-            //     ></div>
-            //   </Tooltip>
-            // ),
           },
+
+          // render: (text) => (
+          //   <Tooltip
+          //     title={
+          //       <div>
+          //         <p className="space-x-2 text-lg border p-3 text-nowrap">
+          //           <strong>Nomi:</strong>
+          //           <span>{text.nameUZB}</span>
+          //         </p>
+          //         <p className="space-x-2 text-lg border p-3 text-nowrap">
+          //           <strong>Code:</strong>
+          //           <span>{text.colorCode}</span>
+          //         </p>
+          //       </div>
+          //     }
+          //   >
+          //     <div
+          //       style={{ background: text.colorCode }}
+          //       className={`w-6 h-6 rounded-md cursor-pointer shadow-sm shadow-primary`}
+          //     ></div>
+          //   </Tooltip>
+          // ),
+
           {
             title: "Img",
             dataIndex: "productImages",
@@ -359,7 +362,7 @@ const SiteProducts = () => {
                   mxikNumber: searchValue
                     ? record.mxikNumber
                     : record.mxiknumber,
-                  importPrice: record.importPrice,
+                  // importPrice: record.importPrice,
                   sellPrice: record.sellPrice,
                   active: record.active,
                   brandId: record.brand?.id,
@@ -516,7 +519,7 @@ const SiteProducts = () => {
                   mxikNumber: searchValue
                     ? record.mxikNumber
                     : record.mxiknumber,
-                  importPrice: record.importPrice,
+                  // importPrice: record.importPrice,
                   sellPrice: record.sellPrice,
                   active: record.active,
                   brandId: record.brand?.id,
