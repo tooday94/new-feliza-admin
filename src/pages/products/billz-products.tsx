@@ -121,7 +121,11 @@ const BillzProducts = () => {
         }))}
         loading={isLoading || isFetching || filterLoading}
         title={() => (
-          <Flex justify="space-between" className="flex-wrap-reverse md:flex-nowrap" gap={24}>
+          <Flex
+            justify="space-between"
+            className="flex-wrap-reverse md:flex-nowrap"
+            gap={24}
+          >
             <Flex>
               <Button
                 size="large"
@@ -134,27 +138,26 @@ const BillzProducts = () => {
               >
                 Qayta yuklash
               </Button>
-
             </Flex>
-              <Input.Search
-                size="large"
-                placeholder="ref, barcode yoki nom bilan qidirish"
-                style={{ width: 550 }}
-                allowClear
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onSearch={(value) => {
-                  setSearchValue(value);
-                  setFilteredData(null);
-                  setSearchParams({
-                    type: "billz",
-                    page: String(currentPage),
-                    limit: String(limit),
-                    tab: initialTab,
-                    search: value,
-                  });
-                }}
-              />
+            <Input.Search
+              size="large"
+              placeholder="ref, barcode yoki nom bilan qidirish"
+              style={{ width: 550 }}
+              allowClear
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onSearch={(value) => {
+                setSearchValue(value);
+                setFilteredData(null);
+                setSearchParams({
+                  type: "billz",
+                  page: String(currentPage),
+                  limit: String(limit),
+                  tab: initialTab,
+                  search: value,
+                });
+              }}
+            />
             <Flex gap={24} justify="space-between" className="w-full md:w-fit">
               <Button
                 type="primary"
