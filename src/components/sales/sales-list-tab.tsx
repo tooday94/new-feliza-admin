@@ -17,6 +17,9 @@ import { endpoints } from "../../configs/endpoints";
 import { toast } from "react-toastify";
 // import { dateFormat } from "../../utils/formatDate";
 // import type { Product } from "../../types/products-type";
+import { Input } from "antd";
+const { Search } = Input;
+
 const { Text } = Typography;
 
 type SaleItem = {
@@ -74,6 +77,17 @@ const SalesListTab: React.FC = () => {
 
   return (
     <>
+      {/* 🔍 Search input */}
+      <div className="flex justify-center mb-4">
+        <Search
+          placeholder="Chegirma nomi bo‘yicha qidirish..."
+          allowClear
+          enterButton="Qidirish"
+          size="large"
+          onSearch={(value) => console.log(value)} // keyin bu joyga filter funksiya yozamiz
+          style={{ width: 600 }}
+        />
+      </div>
       <Table
         loading={isLoading}
         bordered

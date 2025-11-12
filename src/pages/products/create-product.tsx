@@ -82,6 +82,7 @@ const CreateProduct = () => {
       }
     });
   };
+  console.log("Updated Size Details:", sizeDetails);
 
   const [colorImages, setColorImages] = useState<
     { imagesList: UploadFile[]; colorId: number }[]
