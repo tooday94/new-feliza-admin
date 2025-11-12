@@ -10,7 +10,7 @@ import {
   Form,
   Image,
   Input,
-  InputNumber,
+  // InputNumber,
   Modal,
   Popconfirm,
   Popover,
@@ -339,146 +339,188 @@ const SiteProducts = () => {
             dataIndex: "brand",
             render: (text) => <span>{text.name}</span>,
           },
+          // {
+          //   width: "0",
+          //   title: "O'lcham",
+          //   dataIndex: ["productSizeVariantList"],
+          //   render: (_, record) => {
+          //     // if (!record?.productSizeVariantList) return "-";
+          //     const handleFinish = (values: any) => {
+          //       const updatedVariants = record.productSizeVariantList.map(
+          //         (variant) => ({
+          //           ...variant,
+          //           quantity: values[`quantity_${variant.id}`],
+          //         })
+          //       );
+
+          //       const updatedData = {
+          //         nameUZB: record.nameUZB,
+          //         nameRUS: record.nameRUS,
+          //         descriptionUZB: record.descriptionUZB,
+          //         descriptionRUS: record.descriptionRUS,
+          //         ikpuNumber: record.ikpunumber,
+          //         mxikNumber: searchValue
+          //           ? record.mxikNumber
+          //           : record.mxiknumber,
+          //         // importPrice: record.importPrice,
+          //         sellPrice: record.sellPrice,
+          //         active: record.active,
+          //         brandId: record.brand?.id,
+          //         categoryId: record.category?.map((c) => c.id),
+          //         colorId: record.color?.id,
+          //         productSizeVariantDtoList: updatedVariants,
+          //       };
+          //       // console.log("Upadate data 1 ta maxsulot uchun", updatedData);
+
+          //       updateProduct(
+          //         { data: updatedData, id: popoverOpen },
+          //         {
+          //           onSuccess: () => {
+          //             setPopoverOpen("");
+          //             toast.success("Mahsulot o'lchami o'zgartirildi");
+
+          //             if (searchValue) {
+          //               queryClient.invalidateQueries({
+          //                 queryKey: [
+          //                   endpoints.products.getByRefNumber + searchValue,
+          //                 ],
+          //               });
+          //             }
+          //           },
+          //           onError: () => {
+          //             toast.error(
+          //               "Mahsulot o'lchamini o'zgartirishda xatolik",
+          //               { position: "top-center" }
+          //             );
+          //           },
+          //         }
+          //       );
+          //       // console.log("Upadate data yangi variantlar", updateProduct);
+          //     };
+
+          //     return (
+          //       <Popover
+          //         fresh
+          //         open={popoverOpen == record.id ? true : false}
+          //         onOpenChange={(open) => {
+          //           if (open) {
+          //             form.setFieldsValue(
+          //               record.productSizeVariantList.reduce(
+          //                 (acc: Record<string, any>, variant) => {
+          //                   acc[`quantity_${variant.id}`] = variant.quantity;
+          //                   return acc;
+          //                 },
+          //                 {} as Record<string, any>
+          //               )
+          //             );
+          //             setPopoverOpen(record.id);
+          //           } else {
+          //             setPopoverOpen("");
+          //           }
+          //         }}
+          //         trigger="click"
+          //         title="O'lchamlar tahriri"
+          //         content={
+          //           <Form form={form} onFinish={handleFinish} layout="vertical">
+          //             {record.productSizeVariantList.map((variant) => (
+          //               <Form.Item
+          //                 key={variant.id}
+          //                 name={`quantity_${variant?.id}`}
+          //                 label={`${variant.size} miqdor`}
+          //                 initialValue={variant.quantity}
+          //                 rules={[{ required: true }]}
+          //               >
+          //                 <InputNumber className="!w-full" min={0} />
+          //               </Form.Item>
+          //             ))}
+          //             <Button
+          //               block
+          //               htmlType="submit"
+          //               type="primary"
+          //               size="small"
+          //             >
+          //               Saqlash
+          //             </Button>
+          //           </Form>
+          //         }
+          //       >
+          //         <Tooltip
+          //           placement="bottom"
+          //           title={
+          //             <div className="text-lg">
+          //               {record.productSizeVariantList.map((size: any) => (
+          //                 <p
+          //                   key={size.id}
+          //                   className="text-lg border p-3 text-nowrap"
+          //                 >
+          //                   {size.size}: {size.quantity} ta
+          //                 </p>
+          //               ))}
+          //             </div>
+          //           }
+          //         >
+          //           <span
+          //             onClick={() => (
+          //               setPopoverOpen(record.id), console.log(record.id)
+          //             )}
+          //             className="border px-2 py-1 rounded cursor-pointer text-nowrap"
+          //             style={{
+          //               backgroundColor: record.productSizeVariantList.some(
+          //                 (item) => item.quantity <= 0
+          //               )
+          //                 ? "#ffa2a2"
+          //                 : "transparent",
+          //             }}
+          //           >
+          //             {record.productSizeVariantList[0]?.size}
+          //             {record.productSizeVariantList.length > 1 &&
+          //               ` +${record.productSizeVariantList.length - 1}`}
+          //           </span>
+          //         </Tooltip>
+          //       </Popover>
+          //     );
+          //   },
+          // },
           {
             width: "0",
             title: "O'lcham",
             dataIndex: ["productSizeVariantList"],
             render: (_, record) => {
-              // if (!record?.productSizeVariantList) return "-";
-              const handleFinish = (values: any) => {
-                const updatedVariants = record.productSizeVariantList.map(
-                  (variant) => ({
-                    ...variant,
-                    quantity: values[`quantity_${variant.id}`],
-                  })
-                );
-
-                const updatedData = {
-                  nameUZB: record.nameUZB,
-                  nameRUS: record.nameRUS,
-                  descriptionUZB: record.descriptionUZB,
-                  descriptionRUS: record.descriptionRUS,
-                  ikpuNumber: record.ikpunumber,
-                  mxikNumber: searchValue
-                    ? record.mxikNumber
-                    : record.mxiknumber,
-                  // importPrice: record.importPrice,
-                  sellPrice: record.sellPrice,
-                  active: record.active,
-                  brandId: record.brand?.id,
-                  categoryId: record.category?.map((c) => c.id),
-                  colorId: record.color?.id,
-                  productSizeVariantDtoList: updatedVariants,
-                };
-
-                updateProduct(
-                  { data: updatedData, id: popoverOpen },
-                  {
-                    onSuccess: () => {
-                      setPopoverOpen("");
-                      toast.success("Mahsulot o'lchami o'zgartirildi");
-
-                      if (searchValue) {
-                        queryClient.invalidateQueries({
-                          queryKey: [
-                            endpoints.products.getByRefNumber + searchValue,
-                          ],
-                        });
-                      }
-                    },
-                    onError: () => {
-                      toast.error(
-                        "Mahsulot o'lchamini o'zgartirishda xatolik",
-                        { position: "top-center" }
-                      );
-                    },
-                  }
-                );
-              };
-
               return (
-                <Popover
-                  fresh
-                  open={popoverOpen == record.id ? true : false}
-                  onOpenChange={(open) => {
-                    if (open) {
-                      form.setFieldsValue(
-                        record.productSizeVariantList.reduce(
-                          (acc: Record<string, any>, variant) => {
-                            acc[`quantity_${variant.id}`] = variant.quantity;
-                            return acc;
-                          },
-                          {} as Record<string, any>
-                        )
-                      );
-                      setPopoverOpen(record.id);
-                    } else {
-                      setPopoverOpen("");
-                    }
-                  }}
-                  trigger="click"
-                  title="O'lchamlar tahriri"
-                  content={
-                    <Form form={form} onFinish={handleFinish} layout="vertical">
-                      {record.productSizeVariantList.map((variant) => (
-                        <Form.Item
-                          key={variant.id}
-                          name={`quantity_${variant?.id}`}
-                          label={`${variant.size} miqdor`}
-                          initialValue={variant.quantity}
-                          rules={[{ required: true }]}
+                <Tooltip
+                  placement="bottom"
+                  title={
+                    <div className="text-lg">
+                      {record.productSizeVariantList.map((size) => (
+                        <p
+                          key={size.id}
+                          className="text-lg border p-3 text-nowrap"
                         >
-                          <InputNumber className="!w-full" min={0} />
-                        </Form.Item>
+                          {size.size}: {size.quantity} ta
+                        </p>
                       ))}
-                      <Button
-                        block
-                        htmlType="submit"
-                        type="primary"
-                        size="small"
-                      >
-                        Saqlash
-                      </Button>
-                    </Form>
+                    </div>
                   }
                 >
-                  <Tooltip
-                    placement="bottom"
-                    title={
-                      <div className="text-lg">
-                        {record.productSizeVariantList.map((size: any) => (
-                          <p
-                            key={size.id}
-                            className="text-lg border p-3 text-nowrap"
-                          >
-                            {size.size}: {size.quantity} ta
-                          </p>
-                        ))}
-                      </div>
-                    }
+                  <span
+                    className="border px-2 py-1 rounded cursor-default text-nowrap"
+                    style={{
+                      backgroundColor: record.productSizeVariantList.some(
+                        (item) => item.quantity <= 0
+                      )
+                        ? "#ffa2a2"
+                        : "transparent",
+                    }}
                   >
-                    <span
-                      onClick={() => (
-                        setPopoverOpen(record.id), console.log(record.id)
-                      )}
-                      className="border px-2 py-1 rounded cursor-pointer text-nowrap"
-                      style={{
-                        backgroundColor: record.productSizeVariantList.some(
-                          (item) => item.quantity <= 0
-                        )
-                          ? "#ffa2a2"
-                          : "transparent",
-                      }}
-                    >
-                      {record.productSizeVariantList[0]?.size}
-                      {record.productSizeVariantList.length > 1 &&
-                        ` +${record.productSizeVariantList.length - 1}`}
-                    </span>
-                  </Tooltip>
-                </Popover>
+                    {record.productSizeVariantList[0]?.size}
+                    {record.productSizeVariantList.length > 1 &&
+                      ` +${record.productSizeVariantList.length - 1}`}
+                  </span>
+                </Tooltip>
               );
             },
           },
+
           {
             title: "Ref",
             dataIndex: "referenceNumber",
