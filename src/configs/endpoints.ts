@@ -82,6 +82,7 @@ export const endpoints = {
     post: "/api/saleGroup/addSaleGroup",
     delete: "/api/saleGroup/removeSaleGroup", // POST body bilan { saleGroupId, saleCategoryId }
     fullGetAll: "/api/saleGroup/getAllSaleGroupsDto",
+    put: "/api/saleGroup/editSaleGroup/", // + saleGroupId
   },
   sms: {
     getAll: "/api/sms/getAll",
