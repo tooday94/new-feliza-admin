@@ -1,10 +1,10 @@
 import React from "react";
 
 export const routes = [
-  {
-    path: "dashboard",
-    element: React.lazy(() => import("../pages/dashboard/dashboard")),
-  },
+  // {
+  //   path: "dashboard",
+  //   element: React.lazy(() => import("../pages/dashboard/dashboard")),
+  // },
   {
     path: "products",
     element: React.lazy(() => import("../pages/products/products")),

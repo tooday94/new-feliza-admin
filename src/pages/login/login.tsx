@@ -38,7 +38,7 @@ const Login: React.FC = () => {
   useEffect(() => {
     const token = Cookie.get("FELIZA-TOKEN");
     if (token) {
-      navigate("/admin/dashboard");
+      navigate("/admin/orders");
     }
   }, [navigate]);
 
@@ -68,7 +68,7 @@ const Login: React.FC = () => {
             });
         }
 
-        navigate("/admin/dashboard");
+        navigate("/admin/orders");
         toast.success("Kirish Tasdiqlandi!", { position: "top-center" });
       },
 

@@ -353,6 +353,7 @@ const CreateBillzProduct = () => {
   };
   return (
     <div className="space-y-4">
+      <h1>106964</h1>
       <Button
         size="large"
         type="primary"
@@ -701,7 +702,8 @@ const CreateBillzProduct = () => {
 
           {/* Bu qismi ranglar va razmelar tanshlash  saytga qoshish qismi */}
           <Flex className="flex-wrap-reverse md:flex-wrap" gap={12}>
-            <Flex className="w-full flex-col border gap-5">
+            {/* Left side - grouped products */}
+            <Flex className="w-full flex-col gap-6">
               {(() => {
                 // Rang bo‘yicha guruhlash
                 const groupedByColor: Record<
@@ -709,7 +711,7 @@ const CreateBillzProduct = () => {
                   { size: string; barcode: string; value: number }[]
                 > = {};
 
-                BillzProducts?.products.forEach((product) => {
+                BillzProducts?.products?.forEach((product) => {
                   const colorField = product.custom_fields?.find(
                     (f) => f.custom_field_name === "Цвет"
                   );
@@ -719,9 +721,7 @@ const CreateBillzProduct = () => {
 
                   if (colorField) {
                     const color = colorField.custom_field_value;
-                    if (!groupedByColor[color]) {
-                      groupedByColor[color] = [];
-                    }
+                    if (!groupedByColor[color]) groupedByColor[color] = [];
 
                     groupedByColor[color].push({
                       size: sizeField?.custom_field_value || "N/A",
@@ -734,75 +734,75 @@ const CreateBillzProduct = () => {
                   }
                 });
 
-                // Render qilish
+                // Render qismi
                 return Object.entries(groupedByColor).map(
                   ([color, variants]) => (
                     <div
                       key={color}
-                      className="border p-2 m-2 rounded shadow-lg"
+                      className="border rounded-2xl shadow-md hover:shadow-lg transition-all bg-white p-4"
                     >
-                      <div className="border-b flex justify-between py-2 mb-2">
-                        <h2 className="text-lg border-r w-full">
-                          Color: <b>{color}</b>
+                      {/* Color Header */}
+                      <div className="border-b flex justify-between items-center pb-2 mb-3">
+                        <h2 className="text-lg font-semibold text-black">
+                          Rang: <b>{color}</b>
                         </h2>
-
-                        <div className=" w-full flex justify-end items-center px-4 py-2 rounded-md">
-                          <Button
-                            onClick={showDrawer}
-                            type="primary"
-                            size="large"
-                            className="hover:bg-blue-600 transition-colors duration-300 font-semibold"
-                          >
-                            Rang Tanlash
-                          </Button>
-                        </div>
+                        <Button
+                          onClick={showDrawer}
+                          type="primary"
+                          size="middle"
+                          className="font-semibold"
+                        >
+                          Rang Tanlash
+                        </Button>
                       </div>
 
+                      {/* Variants */}
                       {variants.map((v, idx) => (
-                        <div key={idx} className="">
-                          <div className="flex">
-                            <p>Size:</p>
-                            <b>{v.size == "0" ? " STANDART" : v.size}</b>
-                            <div className=" w-full flex justify-end items-center px-4 py-2 rounded-md">
-                              <Button
-                                onClick={sizShowDrawer}
-                                type="primary"
-                                size="large"
-                                className="hover:bg-blue-600 transition-colors duration-300 font-semibold"
-                              >
-                                Razmer Tanlash
-                              </Button>
+                        <div
+                          key={idx}
+                          className="border rounded-lg p-3 mb-3 bg-gray-50 hover:bg-gray-100 transition-all"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-gray-700">
+                              <p>O‘lcham:</p>
+                              <b>{v.size === "0" ? "STANDART" : v.size}</b>
                             </div>
+                            <Button
+                              onClick={sizShowDrawer}
+                              type="primary"
+                              size="small"
+                              className="font-medium"
+                            >
+                              Razmer Tanlash
+                            </Button>
                           </div>
 
-                          <div className="flex justify-between border-t mt-2 pt-2">
-                            <div className="flex gap-2">
-                              <p>Barcode: </p>
-                              <span className="font-bold">{v.barcode}</span>
+                          {/* Barcode */}
+                          <div className="flex justify-between items-center border-t mt-3 pt-2">
+                            <div className="flex gap-2 text-gray-700">
+                              <p>Barcode:</p>
+                              <span className="font-semibold">{v.barcode}</span>
                             </div>
-
-                            <div>
-                              <InputNumber
-                                placeholder="Barcode"
-                                value={v.barcode} // shu joy asosiy!
-                                // readOnly // foydalanuvchi o‘zgartira olmasin (ixtiyoriy)
-                                className="!w-full"
-                              />
-                            </div>
+                            <InputNumber
+                              placeholder="Barcode"
+                              value={v.barcode}
+                              className="!w-40"
+                              readOnly
+                            />
                           </div>
 
-                          <div className="flex justify-between border-t mt-2 pt-2">
-                            <div className="flex gap-2">
-                              <p>Soni: </p>
-                              <span className="font-bold">{v.value}</span>
+                          {/* Quantity */}
+                          <div className="flex justify-between items-center border-t mt-3 pt-2">
+                            <div className="flex gap-2 text-gray-700">
+                              <p>Soni:</p>
+                              <span className="font-semibold">{v.value}</span>
                             </div>
-
-                            <div className="">
-                              <InputNumber
-                                placeholder="Soni"
-                                defaultValue={v.value}
-                              />
-                            </div>
+                            <InputNumber
+                              placeholder="Soni"
+                              defaultValue={v.value}
+                              className="!w-40"
+                              min={0}
+                            />
                           </div>
                         </div>
                       ))}
@@ -811,18 +811,20 @@ const CreateBillzProduct = () => {
                 );
               })()}
             </Flex>
-            {/*  comentdan chiqarilgan kod Form.Item toliq Colors bolim bu */}
+
+            {/* Drawer - Rang tanlash */}
             <Drawer
               width={600}
               title="Rangni Belgilang"
               onClose={onClose}
               open={open}
+              bodyStyle={{ background: "#fafafa" }}
             >
               <Form.Item
-                name={"colorIds"}
+                name="colorIds"
                 label={
-                  <Flex align="center" gap={12}>
-                    <h1>Ranglar</h1>
+                  <Flex align="center" gap={10}>
+                    <h1 className="font-semibold text-gray-700">Ranglar</h1>
                     <Button
                       title="Yangilash"
                       size="small"
@@ -832,18 +834,17 @@ const CreateBillzProduct = () => {
                     />
                   </Flex>
                 }
-                className="w-fit"
               >
-                <div className="flex flex-wrap justify-center md:justify-start gap-2 border max-h-96 h-full overflow-y-scroll">
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start border rounded-lg p-3 bg-white max-h-96 overflow-y-auto">
                   {data?.map((color) => (
                     <Tooltip title={color.nameUZB} key={color.id}>
                       <Tag
-                        className="!flex !justify-center !items-center"
+                        className="!flex !justify-center !items-center transition-transform hover:scale-110"
                         key={color.id}
                         onClick={() => toggleColor(color.id)}
                         icon={
                           selectedColors.includes(color.id) ? (
-                            <CheckCircleOutlined className="text-xl !text-primary bg-white rounded-full" />
+                            <CheckCircleOutlined className="text-xl text-white" />
                           ) : null
                         }
                         style={{
@@ -853,9 +854,8 @@ const CreateBillzProduct = () => {
                           cursor: "pointer",
                           background: color.colorCode,
                           color: "#fff",
-                          padding: "4px",
-                          borderRadius: 6,
-                          border: "1px solid #000",
+                          border: "1px solid #00000040",
+                          borderRadius: 8,
                         }}
                       />
                     </Tooltip>
@@ -863,44 +863,40 @@ const CreateBillzProduct = () => {
                 </div>
               </Form.Item>
             </Drawer>
-            {/* Size olcham qismi bular */}
+
+            {/* Drawer - O‘lcham tanlash */}
             <Drawer
               width={600}
-              title="O'lchamlarni Belgilang"
+              title="O‘lchamlarni Belgilang"
               onClose={sizOnClose}
               open={sizOpen}
+              bodyStyle={{ background: "#fafafa" }}
             >
               <Form.Item
+                name="sizes"
+                label="O‘lcham"
                 rules={[
                   {
-                    required: selectedSizes.length > 0 ? false : true,
-                    message: "kiritish shart!",
+                    required: selectedSizes.length === 0,
+                    message: "O‘lchamni tanlash shart!",
                   },
                 ]}
-                name={"sizes"}
-                className="w-full"
-                label="O'lcham"
               >
                 <Flex className="w-full">
                   <TreeSelect
                     treeData={treeData}
                     value={selectedSizes}
-                    placeholder="O'lchamni tanlang"
+                    placeholder="O‘lchamni tanlang"
                     size="large"
-                    className="md:!w-full !w-full !uppercase"
+                    className="w-full uppercase"
                     treeCheckable
-                    // treeLine
                     allowClear
                     multiple
-                    styles={{ popup: { root: { fontSize: 44 } } }}
                     popupRender={(menu) => (
-                      <div className="space-y-3 !text-6xl">
-                        <div
-                          // className="border"
-                          style={{ display: "flex", gap: 8, padding: 8 }}
-                        >
+                      <div className="space-y-3 text-base">
+                        <div className="flex gap-2 p-2">
                           <Input
-                            placeholder="Yangi o'lcham kiriting"
+                            placeholder="Yangi o‘lcham kiriting"
                             value={newSize}
                             onChange={(e) => setNewSize(e.target.value)}
                             onPressEnter={addNewSize}
@@ -912,34 +908,24 @@ const CreateBillzProduct = () => {
                             onClick={addNewSize}
                           />
                         </div>
-                        <div className="!text-xl space-y-5">{menu}</div>
+                        {menu}
                       </div>
                     )}
                     onChange={(val) =>
-                      setSelectedSizes(val.map((v: string) => v.toUpperCase()))
+                      setSelectedSizes(val.map((v) => v.toUpperCase()))
                     }
                     tagRender={(props) => {
                       const { label, closable, onClose } = props;
                       return (
                         <span
-                          style={{
-                            textTransform: "uppercase",
-                            display: "inline-flex",
-                            alignItems: "center",
-                          }}
-                          className="rounded bg-primary/70 text-white m-2 p-1"
+                          className="rounded bg-blue-600 text-white px-2 py-1 m-1 flex items-center gap-1"
+                          style={{ textTransform: "uppercase" }}
                         >
                           {label}
                           {closable && (
                             <CloseOutlined
                               onClick={onClose}
-                              style={{
-                                marginLeft: 10,
-                                cursor: "pointer",
-                                fontWeight: "bold",
-                                fontSize: 14,
-                                color: "red",
-                              }}
+                              className="cursor-pointer text-red-300"
                             />
                           )}
                         </span>
@@ -1107,3 +1093,26 @@ const CreateBillzProduct = () => {
 };
 
 export default CreateBillzProduct;
+
+// const CreateBillzProduct = () => {
+//   return <div>CreateBillzProduct qo'shilish qismi tayyorlanmoqda...</div>;
+// };
+
+// export default CreateBillzProduct;
+
+??????????????///
+
+<div className="flex-1">
+<div className="grid grid-cols-3 gap-2">
+  {selectedSizes?.map((size) => (
+    <div
+      key={`${colorId}-${size}`}
+      className="border rounded-md p-2 text-center text-sm font-medium"
+      style={{
+        background: colorObj?.colorCode,
+      }}
+    >
+      <span className="text-white">{size}</span>
+    </div>
+  ))}
+</div>
