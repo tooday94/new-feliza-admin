@@ -5,7 +5,7 @@ import {
   EyeOutlined,
   LayoutOutlined,
   PercentageOutlined,
-  // PieChartOutlined,
+  PieChartOutlined,
   ProductOutlined,
   SettingOutlined,
   ShoppingOutlined,
@@ -29,11 +29,6 @@ const menuSections: MenuSection[] = [
   {
     title: "Asosiy",
     items: [
-      // {
-      //   key: "/admin/dashboard",
-      //   icon: <PieChartOutlined />,
-      //   label: "Statistika",
-      // },
       {
         key: "/admin/orders",
         icon: <ShoppingOutlined />,
@@ -85,6 +80,11 @@ const menuSections: MenuSection[] = [
         key: "/admin/messages",
         icon: <SoundOutlined />,
         label: "Xabarlar",
+      },
+      {
+        key: "/admin/dashboard",
+        icon: <PieChartOutlined />,
+        label: "Statistika",
       },
     ],
   },
