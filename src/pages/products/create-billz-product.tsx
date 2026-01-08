@@ -1093,9 +1093,3 @@ const CreateBillzProduct = () => {
 };
 
 export default CreateBillzProduct;
-
-// const CreateBillzProduct = () => {
-//   return <div>CreateBillzProduct qo'shilish qismi tayyorlanmoqda...</div>;
-// };
-
-// export default CreateBillzProduct;
